@@ -1,7 +1,8 @@
 <?php
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PrestataireController;
+use App\Http\Controllers\ClientController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,19 +15,29 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/admin', function (Request $request) {
+Route::middleware('auth:sanctum')->get('/admin', function (Request $request) {
     return $request->user();
 });
 
-Route::apiResource('client', \App\Http\Controllers\ClientController::class);
+Route::group(['middleware' => 'auth:sanctum'], function() {
+    Route::get('allclient', [ClientController::class, 'allClient']);
+    Route::get('allprestataire', [PrestataireController::class, 'allPrestataire']);
+});
+
+
 Route::apiResource('annonce',\App\Http\Controllers\AnnonceController::class);
-Route::apiResource('prestataire',\App\Http\Controllers\PrestataireController::class);
 
 //route register and login client
-Route::post('/clientregister', 'App\Http\Controllers\ClientController@register');
-Route::post('/clientlogin', 'App\Http\Controllers\ClientController@login');
+Route::post('clientregister', [ClientController::class, 'register']);
+Route::post('/clientlogin', [ClientController::class, 'login']);
+Route::get('{provider}', [ClientController::class, 'redirectToProvider'])->where('provider', 'facebook|google');
+Route::get('{provider}/callback', [ClientController::class, 'handleProviderCallback'])->where('provider', 'facebook|google');
+
 
 //route register and login prestataire
-Route::post('/prestataireregister', 'App\Http\Controllers\PrestataireController@register');
-Route::post('/prestatairelogin', 'App\Http\Controllers\PrestataireController@login');
+Route::post('/prestataireregister', [PrestataireController::class, 'register']);
+Route::post('/prestatairelogin', [PrestataireController::class, 'login']);
+Route::get('/{provider}', [PrestataireController::class, 'redirectToProvider'])->where('provider', 'facebook|google');
+Route::get('/{provider}/callback', [PrestataireController::class, 'handleProviderCallback'])->where('provider', 'facebook|google');
+
 

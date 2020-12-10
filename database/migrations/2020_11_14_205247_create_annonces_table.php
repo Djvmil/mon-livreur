@@ -22,10 +22,10 @@ class CreateAnnoncesTable extends Migration
             $table->string('etat');
             $table->boolean('repondu')->default(0);
             $table->dateTime('date_annonce');
-            $table->bigInteger() (idprestataire);
-            $table->bigInteger(idclient);
+            $table->bigInteger(idprestataire)->nullable();
+            $table->bigInteger(idclient)->nullable();
             $table->timestamps();
-        });*/
+        });
 
 
         Schema::table('annonces', function (Blueprint $table) {
@@ -33,7 +33,7 @@ class CreateAnnoncesTable extends Migration
            // $table->foreignId('idclient')->constrained()->after('date_annonce');
             $table->foreign('idclient')->references('idclient')->on('clients');
             $table->foreign('idprestataire')->references('idprestataire')->on('prestataires');
-        });
+        });*/
     }
 
     /**

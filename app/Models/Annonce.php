@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class Annonce extends Model
 {
-    use HasFactory,  Notifiable;
+    use HasFactory,  Notifiable, HasApiTokens;
 
     /**
      * The database table used by the model.

@@ -13,10 +13,11 @@ class CreateClientsTable extends Migration
      */
     public function up()
     {
-     /*  Schema::create('clients', function (Blueprint $table) {
+      /*Schema::create('clients', function (Blueprint $table) {
             $table->id('idclient');
             $table->string('identifiant');
             $table->string('password');
+            $table->string('api_token', 80)->unique()->nullable()->default(null);
             $table->string('nom');
             $table->string('prenom');
             $table->string('identite_verifier')->nullable();
@@ -25,8 +26,6 @@ class CreateClientsTable extends Migration
             $table->integer('telephone');
             $table->string('adresse');
             $table->string('avis')->nullable();
-            $table->unsignedBigInteger('idannonce')->nullable();
-            $table->foreign('idannonce')->references('idannonce')->on('annonces');
             $table->rememberToken();
             $table->timestamps();
 

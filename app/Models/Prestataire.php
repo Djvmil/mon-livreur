@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Passport\HasApiTokens;
+//use Laravel\Passport\HasApiTokens;
+use Laravel\Sanctum\HasApiTokens;
 
 class Prestataire extends Authenticatable
 {
@@ -18,6 +19,7 @@ class Prestataire extends Authenticatable
      * @var string
      */
     protected $table = 'prestataires';
+    protected $primaryKey ='idprestataire';
 
     /**
      * The attributes that are mass assignable.

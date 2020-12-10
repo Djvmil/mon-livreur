@@ -13,10 +13,11 @@ class CreatePrestatairesTable extends Migration
      */
     public function up()
     {
-        /*Schema::create('prestataires', function (Blueprint $table) {
+       /* Schema::create('prestataires', function (Blueprint $table) {
             $table->id('idprestataire');
             $table->string('identifiant');
             $table->string('password');
+            $table->string('api_token', 80)->unique()->nullable()->default(null);
             $table->string('nom');
             $table->string('prenom');
             $table->string('identite_verifier')->nullable();
@@ -26,8 +27,6 @@ class CreatePrestatairesTable extends Migration
             $table->integer('solde_compte')->default(0);
             $table->string('adresse_depart');
             $table->text('avis')->nullable();
-            $table->unsignedBigInteger('idannonce')->nullable();
-            $table->foreign('idannonce')->references('idannonce')->on('annonces');
             $table->rememberToken();
             $table->timestamps();
 
@@ -35,10 +34,7 @@ class CreatePrestatairesTable extends Migration
         });*/
 
         /*Schema::table('prestataires', function ($table) {
-            $table->string('api_token', 80)->after('password')
-                ->unique()
-                ->nullable()
-                ->default(null);
+
         });*/
     }
 

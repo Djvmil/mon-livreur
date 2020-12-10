@@ -24,9 +24,9 @@ class CreateAdminsTable extends Migration
             $table->integer('telephone');
             $table->rememberToken();
             $table->timestamps();
-        });*/
+        });
 
-       /* Schema::table('admins', function ($table) {
+        Schema::table('admins', function ($table) {
             $table->string('api_token', 80)->after('password')
                 ->unique()
                 ->nullable()

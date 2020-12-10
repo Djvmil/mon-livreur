@@ -1,22 +1,27 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Prestataire;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class PrestataireController extends Controller
 {
+    public $successStatus = 200;
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function allPrestataire()
     {
-        $prestataire = Prestataire::all();
-        return  $prestataire->toJson(JSON_PRETTY_PRINT);
+            $prestataire = Prestataire::all();
+            return response()->json(['success' => $prestataire], $this->successStatus);
+
+
     }
 
     /**
@@ -29,7 +34,7 @@ class PrestataireController extends Controller
     {
         if (Prestataire::create($request->all())) {
             return response()->json([
-                'sucess' => 'Prestataire créee avec succes'
+                'sucess' => 'Prestataire créé avec succes'
 
             ],200);
         }
@@ -72,40 +77,55 @@ class PrestataireController extends Controller
 
 
     public function  register(Request $request){
-        $validateData = $request->validate([
+        $validateData = Validator::make($request->all(), [
             'identifiant'=> 'required|max:55',
             'nom' => 'required|max:30',
             'prenom' => 'required|max:30',
-            'email' => 'email|required|unique:clients',
+            'email' => 'email|required|unique:prestataires',
             'password' =>'required|confirmed',
             'telephone' => 'required',
             'adresse_depart' => 'required',
+            'avis'=>'max:1000',
+            'solde_compte'=>'',
             'piece_identite'=>'mimes:jpeg,png,jpg,gif,svg,pdf|max:2048'
         ]);
-        $validateData['password'] = bcrypt($request->password);
+        if($validateData->fails()){
+            return response()->json(['error'=>$validateData->errors()],401);
+        }
         $path = $request->file('piece_identite')->store('identitePrestataire');
 
-        $prestataire = Prestataire::create($validateData);
-
-
-        $accessToken = $prestataire->createToken('accessToken')->accessToken;
-
-
-
-
-        return response(['prestataire'=>$prestataire, 'access_token'=>$accessToken, 'path'=>$path]);
+        $prestataireinput=$request->all();
+        $prestataireinput['password'] = bcrypt($request->password);
+        $prestataire = Prestataire::create($prestataireinput);
+        $success['token']= $prestataire->createToken('api_token')->accessToken;
+        $success['prenom']=$prestataire->prenom;
+        return response()->json(['success'=>$success, 'path'=>$path], $this->successStatus);
     }
 
     public function login(Request $request) {
-        $loginData = $request->validate([
+        $loginData = Validator::make($request->all(),[
             'email'=> 'email|required',
-            'password' => 'required'
+            'password' => 'required|string'
         ]);
-        if (!auth()->attempt($loginData)){
-            return response(['message'=>'identifiant ou mot de passe invalide']);
 
+
+        if ($loginData->fails())
+        {
+            return response(['errors'=>$loginData->errors()->all()], 422);
         }
-        $accessToken = auth()->user()->createToken('accessToken')->accessToken;
-        return response(['prestataire'=>auth()->user(), 'access_token'=>$accessToken]);
+        $prestataire = Prestataire::where('email', $request->email)->first();
+        if ($prestataire) {
+            if (Hash::check($request->password, $prestataire->password)) {
+                $token = $prestataire->createToken('token_prestataire')->plainTextToken;
+                $response = ['client'=>$prestataire, 'token' => $token];
+                return response($response, 200);
+            } else {
+                $response = ["message" => "Password mismatch"];
+                return response($response, 422);
+            }
+        } else {
+            $response = ["message" =>'User does not exist'];
+            return response($response, 422);
+        }
     }
 }
