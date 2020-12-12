@@ -89,15 +89,18 @@ class ClientController extends Controller
             'password' =>'required|confirmed',
             'telephone' => 'required',
             'adresse' => 'required',
-            'avis'=>'max:1000',
-            'piece_identite'=>'mimes:jpeg,png,jpg,gif,svg,pdf|max:2048'
+            'avis'=>'max:1000'
+            //'piece_identite'=>'mimes:jpeg,png,jpg,gif,svg,pdf|max:2048'
 
         ]);
 
         if($validateData->fails()){
             return response()->json(['error'=>$validateData->errors()],401);
         }
-        $path = $request->file('piece_identite')->store('identiteClients');
+
+	$path = "";
+	if(isset($request->piece_identite))
+            $path = $request->file('piece_identite')->store('identiteClients');
 
 
 
