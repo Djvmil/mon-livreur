@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 { 
 
-    public function  getProfile(Request $request){
+    public function  show(Request $request){
         try {
             $user = auth()->user();
             
@@ -31,17 +31,29 @@ class UserController extends Controller
      }
 
 
+    public function  update(Request $request){
+        try {
+            $user = auth()->user();
+            $updateData = request()->all();
+            //return  $this->sendResponse($user);
+            $res = User::where("id", $user->id)->update($updateData);
 
-    public function  check(Request $request){
+            return  $this->sendResponse(User::find($user->id), "User informations updated", "User informations updated"); 
+        } catch (\Throwable $th) {
+            //throw $th;
+            return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
+
+        }
+     }
+ 
+     public function  check(Request $request){
  
         try {     
             $validateData = Validator::make($request->all(), [
                'field' => 'required', 
                'value' => 'required'   
             ]);
-
-            //dd($validateData);
-
+ 
             if($validateData->fails())
                 return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
             
@@ -56,7 +68,7 @@ class UserController extends Controller
 
                     
                     if($checkResult != null)    
-                        return $this->sendResponse($checkResult, "$request->field déjà utilisé", "$request->field déjà utilisé", 400);
+                        return $this->sendResponse($request->value, "$request->field déjà utilisé", "$request->field déjà utilisé", 400);
                       
                     $resData = null;
                     $msg = "$request->field est disponible";
@@ -111,9 +123,8 @@ class UserController extends Controller
 
         }
      }
-
-
-    public function  otpConfirmation(Request $request){
+  
+     public function  otpConfirmation(Request $request){
         try {
              $validateData = Validator::make($request->all(), [
                 'auth' => 'required', 

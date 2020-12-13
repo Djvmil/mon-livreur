@@ -20,6 +20,8 @@ class SendSms
                 'from' => 'MON LIVREUR APP',
                 'text' => $message
             ]);
+
+           return $message;
             
         } catch (\Throwable $th) {
             //throw $th;
