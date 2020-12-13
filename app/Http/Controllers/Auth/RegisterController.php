@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
-use App\Models\AuthOtp;
+use App\Models\AuthOtp; 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator; 
 use Illuminate\Http\Request;
@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\Constants;
+use App\Http\Service\SendSms;
 
 class RegisterController extends Controller
 {
@@ -82,58 +83,57 @@ class RegisterController extends Controller
             $userData['identity_value'] =  $path ; 
             $client = User::create($userData );
  
-            $otpCode = $this->otpCode();
+            $otpCode = Constants::OTP_CODE();
 
             $authOtp = AuthOtp::create(['auth'=> (string)Str::uuid(), 
                             'id_user'=> $client->id, 
                             'otp'=> bcrypt($otpCode), 
                             'otp_type' => Constants::OTP_TYPE_REGISTER]);
 
-                            $resData['auth'] = $authOtp->auth;
-                            $resData['otp'] = $otpCode;
-
-            $msg = "Un message contenant le code vous a été envoyé sur votre numéro de téléphone";
-
+                            $resData['auth'] = $authOtp->auth; 
+ 
             // commit transaction
             DB::commit();
 
+            //dd($userData['phone']);
+
+            $sendMsg = new SendSms();
+            $sendMsg->sendMessage($userData['phone'], "Votre code de confirmation est $otpCode.  ");
+
+            $msg = "Un message contenant le code vous a été envoyé sur votre numéro de téléphone";
             return  $this->sendResponse($resData, $msg, $msg, 200);
         
         } catch (\Throwable $th) {
             //throw $th;
             DB::rollback();
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
-
         }
    }
 
 
  
-    public function  otp_confirmation(Request $request){
+    public function  otpConfirmation(Request $request){
         try {
              $validateData = Validator::make($request->all(), [
-                'auth' => 'required',
-                'email' => 'required',
+                'auth' => 'required', 
                 'otp' => 'required'
             ]);
             
             if($validateData->fails())
                 return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
   
-            $auth = AuthOtp::where('auth', $request->auth)->get()->first(); 
+            $auth = AuthOtp::where('auth', $request->auth, 'status')->get()->first(); 
+ 
 
             if($auth != null && Hash::check($request->otp, $auth->otp)){
-
                 $user = User::find($auth->id_user);
                 $user->active = true;
                 $user->save();
-                $auth->delete();
+                $auth->status = Constants::CONSUMED;
 
                 return  $this->sendResponse(null, "Souscription effectué avec succés.", "Souscription effectué avec succés.", 200);
             }
  
-
-
             return  $this->sendResponse(null, "Le saisi code est incorrecte.", "Le saisi code est incorrecte.", 400);
         
         } catch (\Throwable $th) {
@@ -142,16 +142,36 @@ class RegisterController extends Controller
 
         }
     }
+ 
+    public function  retryOtpConfirm(Request $request){
+        try {
+             $validateData = Validator::make($request->all(), [
+                'auth' => 'required', 
+                'otp' => 'required'
+            ]);
+            
+            if($validateData->fails())
+                return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
+  
+            $auth = AuthOtp::where('auth', $request->auth, 'status')->get()->first(); 
+ 
 
+            if($auth != null && Hash::check($request->otp, $auth->otp)){
+                $user = User::find($auth->id_user);
+                $user->active = true;
+                $user->save();
+                $auth->status = Constants::CONSUMED;
 
-    function otpCode()
-    {
-        $chiffres = array('0','1','2','3','4','5','6','7','8','9');
-        $positions = array_rand($chiffres, 4);
-        $otpCode = null;
-         
-        foreach($positions as $valeur) $otpCode .= $chiffres[$valeur];
-         
-        return $otpCode;
+                return  $this->sendResponse(null, "Souscription effectué avec succés.", "Souscription effectué avec succés.", 200);
+            }
+ 
+            return  $this->sendResponse(null, "Le saisi code est incorrecte.", "Le saisi code est incorrecte.", 400);
+        
+        } catch (\Throwable $th) {
+            //throw $th;
+            return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
+
+        }
     }
+ 
 }

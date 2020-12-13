@@ -5,7 +5,7 @@ namespace App\Helpers;
  * @author El Hadji Dame Cisse
  *
  */
-class Constante
+class Constants
 {
     const MAIL_SEPARATOR=";";
 	 const STATUS_DISABLE=0;
@@ -28,4 +28,21 @@ class Constante
 	 const USER_TYPE_ADMIN = 1;
 	 const USER_TYPE_CLIENT = 2;
 	 const USER_TYPE_PRESTATAIRE = 3;
+
+
+	 const STATUS_OTP_NOT_USE = "NOT_CONSUMED";
+	 const STATUS_OTP_CONSUMED = "CONSUMED";
+	 const STATUS_OTP_BLOCKED = "BLOCKED";
+
+
+	 static function OTP_CODE()
+	 {
+		 $chiffres = array('0','1','2','3','4','5','6','7','8','9');
+		 $positions = array_rand($chiffres, 4);
+		 $otpCode = null;
+		  
+		 foreach($positions as $valeur) $otpCode .= $chiffres[$valeur];
+		  
+		 return $otpCode;
+	 }
 }

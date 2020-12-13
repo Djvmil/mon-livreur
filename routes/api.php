@@ -19,7 +19,7 @@ use App\Http\Controllers\Auth\UserController;
 
 
 Route::post('register', [RegisterController::class, 'register']);
-Route::post('otp_confirmation', [RegisterController::class, 'otp_confirmation']);
+Route::post('otp-confirmation', [RegisterController::class, 'otpConfirmation']);
 Route::post('login',  [LoginController::class, 'login']);
 
 

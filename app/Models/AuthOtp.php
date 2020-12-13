@@ -32,7 +32,7 @@ class AuthOtp extends Eloquent
 	];
 
 	protected $fillable = [
-		'id_user','auth','otp','otp_type'
+		'id_user','auth','otp','otp_type', 'status'
 	];
 
 	public function user()
