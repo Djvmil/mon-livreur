@@ -129,7 +129,7 @@ class RegisterController extends Controller
                 $user = User::find($auth->id_user);
                 $user->active = true;
                 $user->save();
-                $auth->status = Constants::CONSUMED;
+                $auth->status = Constants::STATUS_OTP_CONSUMED;
 
                 return  $this->sendResponse(null, "Souscription effectué avec succés.", "Souscription effectué avec succés.", 200);
             }
@@ -160,7 +160,7 @@ class RegisterController extends Controller
                 $user = User::find($auth->id_user);
                 $user->active = true;
                 $user->save();
-                $auth->status = Constants::CONSUMED;
+                $auth->status = Constants::STATUS_OTP_CONSUMED;
 
                 return  $this->sendResponse(null, "Souscription effectué avec succés.", "Souscription effectué avec succés.", 200);
             }
