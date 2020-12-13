@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Models\User;
 use App\Http\Controllers\Controller; 
 use Illuminate\Http\Request;
+use App\Models\AuthOtp; 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator; 
 use Illuminate\Support\Facades\DB;
@@ -21,7 +22,6 @@ class LoginController extends Controller
     | to conveniently provide its functionality to your applications.
     |
     */   
- 
     public function  login(Request $request){
 
         try {   
@@ -35,9 +35,9 @@ class LoginController extends Controller
             $identity  = request()->get('identity');
             $id = '';
             
-            if($v->fails())
-                $id = 'username';
-            else
+           /* if($v->fails())
+                $id = 'phone';
+            else*/
                 $id = 'email';
                 
             request()->merge([$id => $identity]); 
@@ -49,8 +49,14 @@ class LoginController extends Controller
             ];
     
             if (auth()->attempt($data)) { 
-                $resData['access_token'] = auth()->user()->createToken('MonlivreurAuth')->accessToken; 
-                return  $this->sendResponse($resData, 'Connexion réussie'); 
+
+                $user = auth()->user();
+
+                $resData['user_type_id'] = $user->user_type->id;
+                $resData['user_type']    = $user->user_type->name;
+                $resData['access_token'] =  $user->createToken('MonlivreurAuth')->accessToken; 
+
+                return  $this->sendResponse($resData, 'Connexion réussie', 'Connexion réussie'); 
 
             } else 
                 return $this->sendResponse(null, 'Identifiant ou Mot de passe incorecte', "", 401); 

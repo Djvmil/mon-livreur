@@ -17,11 +17,11 @@ class AuthorizationOtp extends Migration
         Schema::create('auth_otp', function(Blueprint $table)
 		{
 			$table->integer('id', true);
-			$table->integer('id_user')->index('id_user'); 
-			$table->string('auth', 100);  
-			$table->string('otp', 10);  
-			$table->string('otp_type', 100); 
-			$table->string('status', 100)->default('NOT_CONSUMED'); 
+			$table->integer('id_user')->index('id_user')->nullable(); 
+			$table->string('auth', 255);  
+			$table->string('otp', 255);  
+			$table->string('otp_type', 50); 
+			$table->string('status', 50)->default('NOT_CONSUMED'); 
 			$table->timestamps();
 			$table->softDeletes();
 		});

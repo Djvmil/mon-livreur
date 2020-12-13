@@ -45,4 +45,9 @@ class Constants
 		  
 		 return $otpCode;
 	 }
+
+
+	 const CHECK_TYPE_USER = "TYPE_USER";
+	 const CHECK_TYPE_VALUE_EXIST = "VALUE_EXIST"; 
+	 const CHECK_TYPE_REGISTER = "TYPE_REGISTER"; 
 }

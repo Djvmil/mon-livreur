@@ -7,7 +7,7 @@
 
 namespace App\Models;
 
-use Reliese\Database\Eloquent\Model as Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -43,7 +43,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @package App\Models
  */
 class User extends Authenticatable
-{  
+{   
 	use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 	
 	protected $casts = [
@@ -68,6 +68,7 @@ class User extends Authenticatable
 		'email_verified_at',
 		'username',
 		'password',
+		'phone',
 		'id_identity_type',
 		'identity_value',
 		'identity_verify',
