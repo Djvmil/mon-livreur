@@ -42,31 +42,8 @@ return [
         ],
 
         'api' => [
-            'driver' => 'token',
+            'driver' => 'passport',
             'provider' => 'users',
-            'hash' => false,
-        ],
-
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'clients',
-        ],
-
-        'api' => [
-            'driver' => 'token',
-            'provider' => 'clients',
-            'hash' => false,
-        ],
-
-
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'prestataires',
-        ],
-
-        'api' => [
-            'driver' => 'token',
-            'provider' => 'prestataires',
             'hash' => false,
         ],
     ],
@@ -91,17 +68,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Admin::class,
-        ],
-
-        'clients' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Client::class,
-        ],
-
-        'prestataires' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Prestataire::class,
+            'model' => App\Models\User::class,
         ],
 
         // 'users' => [
@@ -128,20 +95,6 @@ return [
     'passwords' => [
         'users' => [
             'provider' => 'users',
-            'table' => 'password_resets',
-            'expire' => 60,
-            'throttle' => 60,
-        ],
-
-        'clients' => [
-            'provider' => 'clients',
-            'table' => 'password_resets',
-            'expire' => 60,
-            'throttle' => 60,
-        ],
-
-        'prestataires' => [
-            'provider' => 'prestataires',
             'table' => 'password_resets',
             'expire' => 60,
             'throttle' => 60,
