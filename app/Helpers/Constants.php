@@ -33,6 +33,8 @@ class Constants
 	 const STATUS_OTP_NOT_USE = "NOT_CONSUMED";
 	 const STATUS_OTP_CONSUMED = "CONSUMED";
 	 const STATUS_OTP_BLOCKED = "BLOCKED";
+	 const STATUS_OTP_EXPIRE = "EXPIRE";
+	 const EXPIRE_OTP = 10;
 
 
 	 static function OTP_CODE()

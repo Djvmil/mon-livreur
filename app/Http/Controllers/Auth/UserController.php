@@ -84,10 +84,11 @@ class UserController extends Controller
 
                             $msg = "Un message contenant le code vous a été envoyé sur votre numéro de téléphone";
     
+                            //$resData['otp'] = $otpCode; 
                             $resData['auth'] = $authOtp->auth; 
 
                             $sendMsg = new SendSms();
-                            $sendMsg->sendMessage($request->value, "Votre code de confirmation est $otpCode.  ");
+                            $sendMsg->sendMessage($request->value, "Votre code de confirmation est $otpCode.\n Le code expire dans 10 minutes ");
                     }
 
                     return $this->sendResponse($resData, $msg, $msg, 200);
@@ -125,6 +126,7 @@ class UserController extends Controller
      }
   
      public function  otpConfirmation(Request $request){
+         
         try {
              $validateData = Validator::make($request->all(), [
                 'auth' => 'required', 
@@ -136,17 +138,22 @@ class UserController extends Controller
   
             $auth = AuthOtp::where('auth', $request->auth, 'status')->get()->first(); 
  
-
             if($auth != null && Hash::check($request->otp, $auth->otp)){
-                $user = User::find($auth->id_user);
-                $user->active = true;
-                $user->save();
-                $auth->status = Constants::STATUS_OTP_CONSUMED;
 
-                return  $this->sendResponse(null, "Souscription effectué avec succés.", "Souscription effectué avec succés.", 200);
+                //Des controles reste pour l'otp
+                //-otp expire
+                //-otp deja consomé
+                //if($auth)
+                //$user = User::where('phone', $auth->phone)->first();
+                //$user->active = true;
+                //$user->save(); 
+
+                $auth->status = Constants::STATUS_OTP_CONSUMED;
+                $auth->save();
+                return  $this->sendResponse(null, "Confimation effectué avec succés.", "Confimation effectué avec succés.", 200);
             }
  
-            return  $this->sendResponse(null, "Le saisi code est incorrecte.", "Le saisi code est incorrecte.", 400);
+            return  $this->sendResponse(null, "Le code saisi est incorrecte.", "Le code saisi est incorrecte.", 400);
         
         } catch (\Throwable $th) {
             //throw $th;

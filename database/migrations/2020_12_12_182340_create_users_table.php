@@ -29,7 +29,7 @@ class CreateUsersTable extends Migration {
 			$table->integer('id_country')->index('id_country')->nullable();
 			$table->integer('id_user_type')->index('id_user_type')->nullable();
 			$table->string('remember_token', 255)->nullable();
-			$table->boolean('active')->default(false);
+			$table->boolean('active')->default(false)->nullable();
 			$table->boolean('status')->nullable();
 			$table->timestamps();
 			$table->softDeletes();

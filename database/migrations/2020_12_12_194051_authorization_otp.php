@@ -21,7 +21,7 @@ class AuthorizationOtp extends Migration
 			$table->string('auth', 255);  
 			$table->string('otp', 255);  
 			$table->string('otp_type', 50); 
-			$table->string('status', 50)->default('NOT_CONSUMED'); 
+			$table->string('status', 50)->default('NOT_CONSUMED')->nullable();
 			$table->timestamps();
 			$table->softDeletes();
 		});
