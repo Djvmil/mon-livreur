@@ -75,7 +75,7 @@ class UserController extends Controller
                             $resData['auth'] = $authOtp->auth; 
 
                             $sendMsg = new SendSms();
-                           // $sendMsg->sendMessage($request->value, "Votre code de confirmation est $otpCode.  ");
+                            $sendMsg->sendMessage($request->value, "Votre code de confirmation est $otpCode.  ");
                     }
 
                     return $this->sendResponse($resData, $msg, $msg, 200);
