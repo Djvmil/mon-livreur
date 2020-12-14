@@ -14,7 +14,7 @@ class AddFieldPhoneOnUserTable extends Migration
     public function up()
     { 
         Schema::table('users', function (Blueprint $table) {
-            $table->string('phone', 100)->nullable();
+            $table->string('phone', 100)->nullable()->after('lastname');
         }); 
     }
 

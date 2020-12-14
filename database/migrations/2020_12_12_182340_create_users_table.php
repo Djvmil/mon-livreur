@@ -23,7 +23,7 @@ class CreateUsersTable extends Migration {
 			$table->string('password', 255);  
 			$table->integer('id_identity_type')->nullable()->index('id_identity_type')->nullable();
 			$table->string('identity_value', 255)->nullable();
-			$table->string('identity_verify', 255)->nullable();
+			$table->string('is_identity_verify', 255)->nullable();
 			$table->string('url_img', 255)->nullable();
 			$table->string('address', 255)->nullable();
 			$table->integer('id_country')->index('id_country')->nullable();
