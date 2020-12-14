@@ -80,7 +80,7 @@ class RegisterController extends Controller
             $userData = request()->all();
             $userData['password'] = bcrypt($request->password); 
             $userData['identity_value'] = $path; 
-            $client = User::create($userData );
+            $client = User::create($userData);
   
             // commit transaction
             DB::commit(); 

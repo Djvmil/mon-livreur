@@ -53,10 +53,13 @@ class User extends Authenticatable
 		'is_email_verify' => 'boolean',
 		'is_phone_verify' => 'boolean',
 		'is_identity_verify' => 'boolean',
+		'active' => 'boolean',
 	];
 
 	protected $dates = [
-		'email_verified_at'
+		'phone_verified_at',
+		'email_verified_at',
+		'identity_verified_at',
 	];
 
 	protected $hidden = [
