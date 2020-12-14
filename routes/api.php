@@ -27,6 +27,8 @@ Route::post('otp-confirmation', [UserController::class, 'otpConfirmation']);
 
 Route::group(['middleware' => 'auth:api'], function() {
     Route::post('logout',  [LoginController::class, 'logout']);
+    Route::get('get-profile',  [UserController::class, 'show']); 
+    Route::post('update-profile',  [UserController::class, 'update']); 
     Route::get('get-profil',  [UserController::class, 'show']); 
     Route::post('update-profil',  [UserController::class, 'update']); 
 });

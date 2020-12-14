@@ -35,8 +35,18 @@ class UserController extends Controller
         try {
             $user = auth()->user();
             $updateData = request()->all();
+  
+            if(isset($request->identity_value))
+                $updateData['identity_value']  = $request->file('identity_value')->store('identity'); 
+               
+            if(isset($request->profile_photo_path))
+                $updateData['profile_photo_path']  = $request->file('profile_photo_path')->store('profile');
+
+            if(isset($request->password))
+                $updateData['password'] = bcrypt($request->password); 
+
             //return  $this->sendResponse($user);
-            $res = User::where("id", $user->id)->update($updateData);
+            $res = User::where("id", $user->id)->update($updateData); 
 
             return  $this->sendResponse(User::find($user->id), "User informations updated", "User informations updated"); 
         } catch (\Throwable $th) {
@@ -84,11 +94,17 @@ class UserController extends Controller
 
                             $msg = "Un message contenant le code vous a été envoyé sur votre numéro de téléphone";
     
-                            //$resData['otp'] = $otpCode; 
+                            $resData['otp'] = $otpCode; 
                             $resData['auth'] = $authOtp->auth; 
 
                             $sendMsg = new SendSms();
                             $sendMsg->sendMessage($request->value, "Votre code de confirmation est $otpCode.\n Le code expire dans 10 minutes ");
+                    }else if($request->field == "email"){
+                        //send mail
+                        // $users->notify(new NotificationMail("votre compte sera activité prochainement"));
+                    
+                        //send mail
+                        //Mail::send(new SendMail($users,"Félicitation $users->nom, vous venez de créer votre compte particulier"));
                     }
 
                     return $this->sendResponse($resData, $msg, $msg, 200);

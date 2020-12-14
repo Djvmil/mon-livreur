@@ -73,13 +73,16 @@ class RegisterController extends Controller
             if($validateData->fails())
                 return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
             
-            $path = "";
-            if(isset($request->identity_value))
-                    $path = $request->file('identity_value')->store('identity');
-            
             $userData = request()->all();
-            $userData['password'] = bcrypt($request->password); 
-            $userData['identity_value'] = $path; 
+            if(isset($request->identity_value))  
+                $userData['identity_value']  = $request->file('identity_value')->store('identity'); 
+               
+            if(isset($request->profile_photo_path))
+                $userData['profile_photo_path']  = $request->file('profile_photo_path')->store('profile');
+
+            if(isset($request->password))
+                $userData['password'] = bcrypt($request->password); 
+ 
             $client = User::create($userData);
   
             // commit transaction
