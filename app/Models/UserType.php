@@ -24,7 +24,7 @@ class UserType extends Eloquent
 {
 	use SoftDeletes; 
 	
-	protected $table = 'user_type';
+	protected $table = 'user_types';
 	public $timestamps = false;
 
 	protected $fillable = [
