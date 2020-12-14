@@ -49,7 +49,10 @@ class User extends Authenticatable
 	protected $casts = [
 		'id_identity_type' => 'int',
 		'id_pays' => 'int',
-		'id_user_type' => 'int'
+		'id_user_type' => 'int',
+		'is_email_verify' => 'boolean',
+		'is_phone_verify' => 'boolean',
+		'is_identity_verify' => 'boolean',
 	];
 
 	protected $dates = [

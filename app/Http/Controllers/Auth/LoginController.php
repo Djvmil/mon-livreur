@@ -54,6 +54,11 @@ class LoginController extends Controller
 
                 $resData['user_type_id'] = $user->user_type->id;
                 $resData['user_type']    = $user->user_type->name;
+
+                $resData['is_phone_verify'] = $user->is_phone_verify; 
+                $resData['is_email_verify'] = $user->is_email_verify; 
+                $resData['is_identity_verify'] = $user->is_identity_verify; 
+
                 $resData['access_token'] =  $user->createToken('MonlivreurAuth')->accessToken; 
 
                 return  $this->sendResponse($resData, 'Connexion réussie', 'Connexion réussie'); 
