@@ -38,18 +38,27 @@ class Handler extends ExceptionHandler
     }
 
     public function render($request, Throwable $exception){
-        if($exception instanceof \Illuminate\Auth\AuthenticationException ){
-                return response()->json ( [ 
-                    'userMessage' => "unauthorized",
-                    'debugMessage' => "unauthorized",
+
+        if ($exception instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException){
+            return response()->json ([ 
+                'userMessage' => "Not Found",
+                'debugMessage' => "Not Found",
+                'data' 	  => null
+            ], 404);
+
+        }
+        elseif ($exception instanceof \Illuminate\Auth\AuthenticationException ){
+                return response()->json ([ 
+                    'userMessage' => "Unauthorized",
+                    'debugMessage' => "Unauthorized",
                     'data' 	  => null
             ], 401 );
 
         }
         elseif ($this->isHttpException($exception))
-            return response()->json ( [ 
-                'userMessage' => "unauthorized",
-                'debugMessage' => "unauthorized",
+            return response()->json ([ 
+                'userMessage' => "Unauthorized",
+                'debugMessage' => "Unauthorized",
                 'data' 	  => null
         ], 401 );
     }

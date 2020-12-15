@@ -22,15 +22,7 @@ Route::post('register', [RegisterController::class, 'register']);
 Route::post('login',  [LoginController::class, 'login']);
 
 Route::post('check',  [UserController::class, 'check']); 
-Route::post('otp-confirmation', [UserController::class, 'otpConfirmation']);
-Route::get('get-image', [UserController::class, 'image']);
-Route::get('/clear', function (Request $request) {
-    Storage::deleteDirectory('public');
-    Storage::makeDirectory('public');
-
-    Artisan::call('route:clear');
-    Artisan::call('storage:link', [] );
-});
+Route::post('otp-confirmation', [UserController::class, 'otpConfirmation']); 
 
 Route::group(['middleware' => 'auth:api'], function() {
     Route::post('logout',  [LoginController::class, 'logout']);
