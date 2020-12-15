@@ -206,7 +206,16 @@ class UserController extends Controller
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
 
         }
+    } 
+
+
+    public function image(Request $request){
+        
+        $path = public_path().'/storage/'.$request->path;
+      //dd($path);
+        return Response::download($path);        
     }
+
  
  
 }
