@@ -71,6 +71,5 @@ class Handler extends ExceptionHandler
                 'data' 	  => null
             ], 500 );
         }
-
     }
 }

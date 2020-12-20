@@ -16,7 +16,7 @@ class CreateCustomersTable extends Migration {
 		{
 			$table->integer('id', true);
 			$table->integer('id_user')->index('id_user');
-			$table->text('avis', 65535);
+			$table->text('avis', 65535)->nullable();
 			$table->timestamps();
 			$table->softDeletes();
 		});

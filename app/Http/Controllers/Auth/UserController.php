@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use App\Helpers\Constants;
 use App\Http\Service\SendSms;
 use Illuminate\Support\Str; 
-use Illuminate\Support\Facades\Hash; 
+use Illuminate\Support\Facades\Hash;  
 
 class UserController extends Controller
 { 
@@ -107,7 +107,7 @@ class UserController extends Controller
                         //Mail::send(new SendMail($users,"Félicitation $users->nom, vous venez de créer votre compte particulier"));
                     }
 
-                    return $this->sendResponse($resData, $msg, $msg, 200);
+                    return $this->sendResponse($resData, $msg, $msg);
 
                     break;
                 case Constants::CHECK_TYPE_VALUE_EXIST: ;
@@ -117,7 +117,7 @@ class UserController extends Controller
                         return $this->sendResponse($checkResult, "$request->field déjà utilisé", "$request->field déjà utilisé", 400);
                       
 
-                    return $this->sendResponse(null, "$request->field est disponible", "$request->field est disponible", 200);
+                    return $this->sendResponse(null, "$request->field est disponible", "$request->field est disponible");
                     break;
                 case Constants::CHECK_TYPE_USER: ;
 
@@ -125,11 +125,11 @@ class UserController extends Controller
                     if($checkResult != null)    
                         return $this->sendResponse($checkResult, "$request->field déjà utilisé", "$request->field déjà utilisé", 400);
                     
-                    return $this->sendResponse(null, "$request->field est disponible", "$request->field  est disponible", 200);
+                    return $this->sendResponse(null, "$request->field est disponible", "$request->field  est disponible");
 
                     break;
                 default:
-                    return $this->sendResponse(null, "Check type non defini", "$request->field est disponible", 200);
+                    return $this->sendResponse(null, "Check type non defini", "$request->field est disponible");
 
             }
 
@@ -166,7 +166,7 @@ class UserController extends Controller
 
                 $auth->status = Constants::STATUS_OTP_CONSUMED;
                 $auth->save();
-                return  $this->sendResponse(null, "Confimation effectué avec succés.", "Confimation effectué avec succés.", 200);
+                return  $this->sendResponse(null, "Confimation effectué avec succés.", "Confimation effectué avec succés.");
             }
  
             return  $this->sendResponse(null, "Le code saisi est incorrecte.", "Le code saisi est incorrecte.", 400);
@@ -196,7 +196,7 @@ class UserController extends Controller
                 $user->save();
                 $auth->status = Constants::STATUS_OTP_CONSUMED;
 
-                return  $this->sendResponse(null, "Souscription effectué avec succés.", "Souscription effectué avec succés.", 200);
+                return  $this->sendResponse(null, "Souscription effectué avec succés.", "Souscription effectué avec succés.");
             }
  
             return  $this->sendResponse(null, "Le saisi code est incorrecte.", "Le saisi code est incorrecte.", 400);

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
+use App\Models\ProviderService;
+use App\Models\Customer;
 use App\Models\AuthOtp; 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator; 
@@ -11,7 +13,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\Constants;
-use App\Http\Service\SendSms;
+use App\Http\Service\SendSms; 
 
 class RegisterController extends Controller
 {
@@ -83,13 +85,28 @@ class RegisterController extends Controller
             if(isset($request->password))
                 $userData['password'] = bcrypt($request->password); 
  
-            $client = User::create($userData);
-  
+            $user = User::create($userData);
+
+            //if(isset($request->id_user_type) && $request->id_user_type == 1)
+                
+            if(isset($request->id_user_type) && $request->id_user_type == 2)
+                Customer::create([
+                    "id_user" => $user->id,
+                    "avis" => "Lorem ipsum",
+                ]);
+                
+            else if(isset($request->id_user_type) && $request->id_user_type == 3)
+                ProviderService::create([
+                    "id_user" => $user->id,
+                    "avis" => "Lorem ipsum",
+                ]); 
+
+
             // commit transaction
             DB::commit(); 
             
             $msg = "Souscription effectué avec succés.";
-            return  $this->sendResponse(null, $msg, $msg, 200);
+            return  $this->sendResponse(null, $msg, $msg);
         
         } catch (\Throwable $th) {
             //throw $th;
