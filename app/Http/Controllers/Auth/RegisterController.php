@@ -87,7 +87,7 @@ class RegisterController extends Controller
  
             $user = User::create($userData);
 
-            //if(isset($request->id_user_type) && $request->id_user_type == 1)
+         /*   //if(isset($request->id_user_type) && $request->id_user_type == 1)
                 
             if(isset($request->id_user_type) && $request->id_user_type == 2)
                 Customer::create([
@@ -100,7 +100,33 @@ class RegisterController extends Controller
                     "id_user" => $user->id,
                     "avis" => "RAS",
                 ]); 
+*/
 
+
+                $type_user = $user->id_user_type;
+                if($user && $type_user == Constants::USER_TYPE_CLIENT ) {
+                    //$iduser=$client->get('id');
+                    $datacustomer = new Customer();
+                    $datacustomer->id_user = $user->id;
+                    $datacustomer->avis = $request->get('avis', 'RAS');
+                    $datacustomer->save();
+                }
+                elseif($user && $type_user == Constants::USER_TYPE_PRESTATAIRE){
+                    $dataprovider = new ProviderService();
+                    $dataprovider->id_user = $user->id;
+                    $dataprovider->avis = $request->get('avis', 'RAS');
+                    $dataprovider->save();
+                }
+                elseif($user && $type_user == Constants::USER_TYPE_ADMIN){
+                    $dataadmin = new Admin();
+                    $dataadmin->id_user = $user->id;
+                    $dataadmin->avis = $request->get('avis', 'RAS');
+                    $dataadmin->save();
+                }
+                else{
+                    return  $this->sendResponse(null, 'ce type d\'utilisateur n\'existe pas', 'ce type d\'utilisateur n\'existe pas', 400);
+                  
+                } 
                  
             // commit transaction
             DB::commit();
