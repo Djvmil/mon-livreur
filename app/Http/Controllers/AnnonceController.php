@@ -26,12 +26,25 @@ class AnnonceController extends Controller
      */
     public function store(Request $request)
     {
-        if (Annonce::create($request->all())) {
-            return response()->json([
-                'sucess' => 'Annonce créee avec succes'
+        auth()->user();
+        $request->validate([
+            'city_start'=>'required',
+            'city_arrive'=>'required',
+            'date_annonce'=>'required',
+            'name'=>'required',
+            'nature_colis'=>'required'
+        ]);
 
-            ],200);
-        }
+        $annonce= new  Annonce();
+        $annonce->city_start=$request->get('city_start');
+        $annonce->city_arrive=$request->get('city_arrive');
+        $annonce->name=$request->get('name');
+        $annonce->etat=$request->get('etat', 'en cours');
+        $annonce->date_annonce=$request->get('date_annonce');
+        $annonce->nature_colis=$request->get('nature_colis');
+        $annonce->idcustomer= auth()->id();
+        $annonce->save();
+        return response()->json(['success'=>$annonce]);
     }
 
     /**
