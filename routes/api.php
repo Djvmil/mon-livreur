@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\UserController;
+use App\Http\Controllers\AnnonceController;
 
 
 /*
@@ -21,15 +22,16 @@ use App\Http\Controllers\Auth\UserController;
 Route::post('register', [RegisterController::class, 'register']);
 Route::post('login',  [LoginController::class, 'login']);
 
-Route::post('check',  [UserController::class, 'check']); 
-Route::post('otp-confirmation', [UserController::class, 'otpConfirmation']); 
+Route::post('check',  [UserController::class, 'check']);
+Route::post('otp-confirmation', [UserController::class, 'otpConfirmation']);
 
 Route::group(['middleware' => 'auth:api'], function() {
     Route::post('logout',  [LoginController::class, 'logout']);
-    Route::get('get-profile',  [UserController::class, 'show']); 
-    Route::post('update-profile',  [UserController::class, 'update']); 
-    Route::get('get-profil',  [UserController::class, 'show']); 
-    Route::post('update-profil',  [UserController::class, 'update']); 
+    Route::get('get-profile',  [UserController::class, 'show']);
+    Route::post('update-profile',  [UserController::class, 'update']);
+    Route::get('get-profil',  [UserController::class, 'show']);
+    Route::post('update-profil',  [UserController::class, 'update']);
+    Route::post('create-annonce',[AnnonceController::class, 'store']);
 });
 
 
