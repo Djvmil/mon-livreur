@@ -4,12 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 class Annonce extends Model
 {
-    use HasFactory,  Notifiable, HasApiTokens;
+    //use HasFactory,  Notifiable, HasApiTokens;
+
+    use SoftDeletes;
+
 
     /**
      * The database table used by the model.
@@ -24,14 +28,18 @@ class Annonce extends Model
      * @var array
      */
     protected $fillable = [
-        'ville_depart',
-        'ville_arrive',
-        'description',
-        'prix',
+        'city_start',
+        'city_arrive',
+        'name',
         'etat',
         'date_annonce',
+        'nature_colis',
+        'idcustomer',
     ];
 
-
+    public function customer()
+    {
+        return $this->belongsTo(\App\Models\Customer::class, 'idcustomer');
+    }
 
 }

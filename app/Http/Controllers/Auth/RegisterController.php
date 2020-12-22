@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\User;
-use App\Models\ProviderService;
 use App\Models\Customer;
+use App\Models\User;
+use App\Models\ProviderService; 
 use App\Models\AuthOtp; 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Validator; 
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -26,9 +26,9 @@ class RegisterController extends Controller
     | validation and creation. By default this controller uses a trait to
     | provide this functionality without requiring any additional code.
     |
-    */ 
+    */
 
- 
+
     /**
      * Get a validator for an incoming registration request.
      *
@@ -57,8 +57,8 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
         ]);
-    } 
- 
+    }
+
     public function  register(Request $request){
         try {
             // start transaction
@@ -66,24 +66,23 @@ class RegisterController extends Controller
 
              $validateData = Validator::make($request->all(), [
                 'firstname' => 'required',
-                'lastname' => 'required',  
+                'lastname' => 'required',
                 'email' => 'email|required|unique:users',
                 'password' =>'required',
-                'phone' => 'required|unique:users' 
+                'phone' => 'required|unique:users'
             ]);
 
             if($validateData->fails())
                 return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
-            
+
             $userData = request()->all();
-            if(isset($request->identity_value))  
-                $userData['identity_value']  = $request->file('identity_value')->store('identity'); 
-               
+            if(isset($request->identity_value))
+                $userData['identity_value']  = $request->file('identity_value')->store('identity');
+
             if(isset($request->profile_photo_path))
                 $userData['profile_photo_path']  = $request->file('profile_photo_path')->store('profile');
-
-            if(isset($request->password))
-                $userData['password'] = bcrypt($request->password); 
+ 
+            $userData['password'] = bcrypt($request->password); 
  
             $user = User::create($userData);
 
@@ -92,22 +91,21 @@ class RegisterController extends Controller
             if(isset($request->id_user_type) && $request->id_user_type == 2)
                 Customer::create([
                     "id_user" => $user->id,
-                    "avis" => "Lorem ipsum",
+                    "avis" => "RAS",
                 ]);
                 
             else if(isset($request->id_user_type) && $request->id_user_type == 3)
                 ProviderService::create([
                     "id_user" => $user->id,
-                    "avis" => "Lorem ipsum",
+                    "avis" => "RAS",
                 ]); 
 
-
+                 
             // commit transaction
-            DB::commit(); 
-            
+            DB::commit();
             $msg = "Souscription effectué avec succés.";
             return  $this->sendResponse(null, $msg, $msg);
-        
+
         } catch (\Throwable $th) {
             //throw $th;
             DB::rollback();
