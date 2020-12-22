@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\Admin;
 use App\Models\Customer;
+use App\Models\ProviderService;
 use App\Models\User;
 use App\Models\AuthOtp;
 use App\Http\Controllers\Controller;
@@ -89,12 +91,29 @@ class RegisterController extends Controller
             // commit transaction
             DB::commit();
             $msg = "Souscription effectué avec succés.";
-            if($client)
+            $type_user=$client->id_user_type;
+            if($client and $type_user==2 ) {
                 //$iduser=$client->get('id');
-                $datacustomer= new Customer();
-                $datacustomer->id_user=$client->id;
-                $datacustomer->avis=$request->get('avis', 'RAS');
+                $datacustomer = new Customer();
+                $datacustomer->id_user = $client->id;
+                $datacustomer->avis = $request->get('avis', 'RAS');
                 $datacustomer->save();
+            }
+            elseif($client and $type_user== 3){
+                $dataprovider = new ProviderService();
+                $dataprovider->id_user = $client->id;
+                $dataprovider->avis = $request->get('avis', 'RAS');
+                $dataprovider->save();
+            }
+            elseif($client and $type_user== 1){
+                $dataadmin = new Admin();
+                $dataadmin->id_user = $client->id;
+                $dataadmin->avis = $request->get('avis', 'RAS');
+                $dataadmin->save();
+            }
+            else{
+                return response()->json(['message'=> 'ce type d\'utilisateur n\'existe pas']);
+            }
             return  $this->sendResponse(null, $msg, $msg, 200);
 
         } catch (\Throwable $th) {
