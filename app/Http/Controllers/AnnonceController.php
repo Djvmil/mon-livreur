@@ -44,7 +44,7 @@ class AnnonceController extends Controller
         $annonce->nature_colis=$request->get('nature_colis');
         $annonce->idcustomer= auth()->id();
         $annonce->save();
-        return response()->json(['success'=>$annonce]);
+        return response()->json(['success'=>$annonce, 'message'=>'annonce créer avec success', 200]);
     }
 
     /**

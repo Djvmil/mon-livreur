@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\Admin;
 use App\Models\Customer;
-use App\Models\User;
-use App\Models\AuthOtp;
+use App\Models\ProviderService;
+use App\Models\User; 
+use App\Models\AuthOtp; 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -12,7 +14,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\Constants;
-use App\Http\Service\SendSms;
+use App\Http\Service\SendSms; 
 
 class RegisterController extends Controller
 {
@@ -80,22 +82,56 @@ class RegisterController extends Controller
 
             if(isset($request->profile_photo_path))
                 $userData['profile_photo_path']  = $request->file('profile_photo_path')->store('profile');
+ 
+            $userData['password'] = bcrypt($request->password); 
+ 
+            $user = User::create($userData);
 
-            if(isset($request->password))
-                $userData['password'] = bcrypt($request->password);
+         /*   //if(isset($request->id_user_type) && $request->id_user_type == 1)
+                
+            if(isset($request->id_user_type) && $request->id_user_type == 2)
+                Customer::create([
+                    "id_user" => $user->id,
+                    "avis" => "RAS",
+                ]);
+                
+            else if(isset($request->id_user_type) && $request->id_user_type == 3)
+                ProviderService::create([
+                    "id_user" => $user->id,
+                    "avis" => "RAS",
+                ]); 
+*/
 
-            $client = User::create($userData);
 
+                $type_user = $user->id_user_type;
+                if($user && $type_user == Constants::USER_TYPE_CLIENT ) {
+                    //$iduser=$client->get('id');
+                    $datacustomer = new Customer();
+                    $datacustomer->id_user = $user->id;
+                    $datacustomer->avis = $request->get('avis', 'RAS');
+                    $datacustomer->save();
+                }
+                elseif($user && $type_user == Constants::USER_TYPE_PRESTATAIRE){
+                    $dataprovider = new ProviderService();
+                    $dataprovider->id_user = $user->id;
+                    $dataprovider->avis = $request->get('avis', 'RAS');
+                    $dataprovider->save();
+                }
+                elseif($user && $type_user == Constants::USER_TYPE_ADMIN){
+                    $dataadmin = new Admin();
+                    $dataadmin->id_user = $user->id;
+                    $dataadmin->avis = $request->get('avis', 'RAS');
+                    $dataadmin->save();
+                }
+                else{
+                    return  $this->sendResponse(null, 'ce type d\'utilisateur n\'existe pas', 'ce type d\'utilisateur n\'existe pas', 400);
+                  
+                } 
+                 
             // commit transaction
             DB::commit();
             $msg = "Souscription effectué avec succés.";
-            if($client)
-                //$iduser=$client->get('id');
-                $datacustomer= new Customer();
-                $datacustomer->id_user=$client->id;
-                $datacustomer->avis=$request->get('avis', 'RAS');
-                $datacustomer->save();
-            return  $this->sendResponse(null, $msg, $msg, 200);
+            return  $this->sendResponse(null, $msg, "Subscription successfully completed");
 
         } catch (\Throwable $th) {
             //throw $th;

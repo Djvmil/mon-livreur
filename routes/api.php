@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\UserController;
-use App\Http\Controllers\AnnonceController;
+use App\Http\Controllers\AdvertController;
 
 
 /*
@@ -28,10 +28,14 @@ Route::post('otp-confirmation', [UserController::class, 'otpConfirmation']);
 Route::group(['middleware' => 'auth:api'], function() {
     Route::post('logout',  [LoginController::class, 'logout']);
     Route::get('get-profile',  [UserController::class, 'show']);
-    Route::post('update-profile',  [UserController::class, 'update']);
-    Route::get('get-profil',  [UserController::class, 'show']);
-    Route::post('update-profil',  [UserController::class, 'update']);
-    Route::post('create-annonce',[AnnonceController::class, 'store']);
+    Route::post('update-profile',  [UserController::class, 'update']); 
+
+    Route::post('create-advert',[AdvertController::class, 'create']);
+
+    Route::post('update-advert',[AdvertController::class, 'update']);
+    Route::post('apply-on-advert',[AdvertController::class, 'applyOnAdvert']);
+    Route::get('adverts/{id}',[AdvertController::class, 'advertById']);
+    Route::get('adverts',[AdvertController::class, 'allAdvert']);
 });
 
 
