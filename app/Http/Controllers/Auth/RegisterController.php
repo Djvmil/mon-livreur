@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\Admin;
 use App\Models\Customer;
-use App\Models\User;
-use App\Models\ProviderService; 
+use App\Models\ProviderService;
+use App\Models\User; 
 use App\Models\AuthOtp; 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
