@@ -54,7 +54,7 @@ class Handler extends ExceptionHandler
             elseif ($this->isHttpException($exception))
                 return response()->json ([ 
                     'userMessage' => "Unknown error",
-                    'debugMessage' => "Unknown error",
+                    'debugMessage' => $exception->getMessage(),
                     'data' 	  => null
                 ], 422 );
             else

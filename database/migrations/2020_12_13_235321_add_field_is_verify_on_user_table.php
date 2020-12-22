@@ -17,9 +17,9 @@ class AddFieldIsVerifyOnUserTable extends Migration
             $table->boolean('is_email_verify')->default(false)->nullable()->after('email');
             
 			$table->boolean('is_phone_verify')->default(false)->nullable()->after('phone'); 
-            $table->dateTime('phone_verified_at')->nullable()->after('is_phone_verify');
+            $table->timestamp('phone_verified_at')->nullable()->default(null)->after('is_phone_verify');
              
-			$table->dateTime('identity_verified_at')->nullable()->after('is_identity_verify');  
+			$table->timestamp('identity_verified_at')->nullable()->default(null)->after('is_identity_verify');  
         }); 
     }
 

@@ -104,7 +104,7 @@ class RegisterController extends Controller
             // commit transaction
             DB::commit();
             $msg = "Souscription effectué avec succés.";
-            return  $this->sendResponse(null, $msg, $msg);
+            return  $this->sendResponse(null, $msg, "Subscription successfully completed");
 
         } catch (\Throwable $th) {
             //throw $th;

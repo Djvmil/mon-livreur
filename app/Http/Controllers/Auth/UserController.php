@@ -22,7 +22,7 @@ class UserController extends Controller
             
             $user['user_type'] = auth()->user()->user_type->name;
 
-            return  $this->sendResponse($user, "User informations", "User informations"); 
+            return  $this->sendResponse($user, "Informations de l'utilisateur", "User informations"); 
         } catch (\Throwable $th) {
             //throw $th;
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
@@ -48,7 +48,7 @@ class UserController extends Controller
             //return  $this->sendResponse($user);
             $res = User::where("id", $user->id)->update($updateData); 
 
-            return  $this->sendResponse(User::find($user->id), "User informations updated", "User informations updated"); 
+            return  $this->sendResponse(User::find($user->id), "Informations utilisateur mises à jour", "User informations updated"); 
         } catch (\Throwable $th) {
             //throw $th;
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
@@ -78,7 +78,7 @@ class UserController extends Controller
 
                     
                     if($checkResult != null)    
-                        return $this->sendResponse($request->value, "$request->field déjà utilisé", "$request->field déjà utilisé", 400);
+                        return $this->sendResponse($request->value, "$request->field déjà utilisé", "$request->field Already used", 400);
                       
                     $resData = null;
                     $msg = "$request->field est disponible";
@@ -114,22 +114,22 @@ class UserController extends Controller
 
                     $checkResult = User::where($request->field, $request->value);
                     if($checkResult != null)    
-                        return $this->sendResponse($checkResult, "$request->field déjà utilisé", "$request->field déjà utilisé", 400);
+                        return $this->sendResponse($checkResult, "$request->field déjà utilisé", "$request->field Already used", 400);
                       
 
-                    return $this->sendResponse(null, "$request->field est disponible", "$request->field est disponible");
+                    return $this->sendResponse(null, "$request->field est disponible", "$request->field is available");
                     break;
                 case Constants::CHECK_TYPE_USER: ;
 
                     $checkResult = User::where($request->field, $request->value)->with("user_type")->first();
                     if($checkResult != null)    
-                        return $this->sendResponse($checkResult, "$request->field déjà utilisé", "$request->field déjà utilisé", 400);
+                        return $this->sendResponse($checkResult, "$request->field déjà utilisé", "$request->field Already used", 400);
                     
-                    return $this->sendResponse(null, "$request->field est disponible", "$request->field  est disponible");
+                    return $this->sendResponse(null, "$request->field est disponible", "$request->field  is available");
 
                     break;
                 default:
-                    return $this->sendResponse(null, "Check type non defini", "$request->field est disponible");
+                    return $this->sendResponse(null, "Check type non defini", "$request->field is available");
 
             }
 
@@ -166,10 +166,10 @@ class UserController extends Controller
 
                 $auth->status = Constants::STATUS_OTP_CONSUMED;
                 $auth->save();
-                return  $this->sendResponse(null, "Confimation effectué avec succés.", "Confimation effectué avec succés.");
+                return  $this->sendResponse(null, "Confimation effectué avec succés.", "Confirmation successfully completed.");
             }
  
-            return  $this->sendResponse(null, "Le code saisi est incorrecte.", "Le code saisi est incorrecte.", 400);
+            return  $this->sendResponse(null, "Le code saisi est incorrecte.", "The code entered is incorrect.", 400);
         
         } catch (\Throwable $th) {
             //throw $th;
@@ -196,10 +196,10 @@ class UserController extends Controller
                 $user->save();
                 $auth->status = Constants::STATUS_OTP_CONSUMED;
 
-                return  $this->sendResponse(null, "Souscription effectué avec succés.", "Souscription effectué avec succés.");
+                return  $this->sendResponse(null, "Souscription effectué avec succés.", "Subscription successfully completed.");
             }
  
-            return  $this->sendResponse(null, "Le saisi code est incorrecte.", "Le saisi code est incorrecte.", 400);
+            return  $this->sendResponse(null, "Le saisi code est incorrecte.", "The code entered is incorrect.", 400);
         
         } catch (\Throwable $th) {
             //throw $th;
