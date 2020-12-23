@@ -61,10 +61,12 @@ class AdvertController extends Controller
                 'name' => $request->name,
                 'departure_city' => $request->departure_city,
                 'arrival_city' => $request->departure_city,
-                'description' => isset($request->description) ? $request->description : null,
+                'departure_date' => isset($request->departure_date) ? $request->departure_date : "null",
+                'acceptance_date' => isset($request->departure_date) ? $request->departure_date : "null",
+                'description' => isset($request->description) ? $request->description : "null",
                 'nature_package' => $request->nature_package,
-                'contact_person_name' => isset($request->contact_person_name) ? $request->contact_person_name : null,
-                'contact_person_phone' =>isset($request->contact_person_phone) ? $request->contact_person_phone : null,
+                'contact_person_name' => isset($request->contact_person_name) ? $request->contact_person_name : "null",
+                'contact_person_phone' =>isset($request->contact_person_phone) ? $request->contact_person_phone : "null",
                 'id_customer' => $customer->id
             ]); 
 
