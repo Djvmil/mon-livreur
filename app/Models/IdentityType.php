@@ -17,15 +17,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $name
  * 
  * @property \Illuminate\Database\Eloquent\Collection $users
- *
+ * 
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property string $deleted_at 
  * @package App\Models
  */
 class IdentityType extends Eloquent
 {
 	use SoftDeletes; 
 	
-	protected $table = 'identity_type';
-	public $timestamps = false;
+	protected $table = 'identity_type'; 
 
 	protected $fillable = [
 		'name'

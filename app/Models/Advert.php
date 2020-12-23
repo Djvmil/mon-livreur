@@ -7,7 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-
+/** 
+* @property \Carbon\Carbon $created_at
+* @property \Carbon\Carbon $updated_at
+* @property string $deleted_at
+*/
 class Advert extends Model
 { 
     use SoftDeletes;
@@ -19,8 +23,7 @@ class Advert extends Model
      * @var string
      */
     protected $table = 'adverts';
-
-	public $timestamps = false;
+ 
 
 	protected $casts = [ 
         'id_customer'=>'int',
