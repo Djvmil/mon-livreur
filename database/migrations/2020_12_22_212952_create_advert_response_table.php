@@ -18,7 +18,7 @@ class CreateAdvertResponseTable extends Migration
             $table->text('comment', 65535)->nullabe(); 
             $table->boolean('taken', false); 
             $table->decimal('price')->default(0); 
-            //$table->string('acceptance_date')->nullable()->default(null);
+            $table->string('acceptance_date')->nullabe();
             $table->integer('id_advert')->index('id_advert');
             $table->integer('id_provider_service')->index('id_provider_service');
             $table->timestamps();

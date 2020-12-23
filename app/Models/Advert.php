@@ -29,7 +29,8 @@ class Advert extends Model
     ];
     
 	protected $dates = [
-		'acceptance_date', 
+		//'departure_date', 
+		//'acceptance_date', 
 	];
 
     /**
@@ -47,6 +48,7 @@ class Advert extends Model
         'description',
         'nature_package',
         'acceptance_date',
+        'departure_date',
         'contact_person_name',
         'contact_person_phone',
         'id_customer',

@@ -24,7 +24,8 @@ class CreateAdvertTable extends Migration
             $table->text('description', 65535)->nullabe();
             $table->decimal('price')->default(0); 
             $table->string('nature_package', 255)->nullabe();
-            //$table->string('acceptance_date')->nullabe()->default(null);
+            $table->string('departure_date')->nullabe();
+            $table->string('acceptance_date')->nullabe();
             $table->string('contact_person_name', 100)->nullabe();
             $table->string('contact_person_phone', 100)->nullabe();
             $table->integer('id_customer')->index('id_customer');

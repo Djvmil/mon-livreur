@@ -30,7 +30,7 @@ class AdvertResponse extends Model
     ];
     
 	protected $dates = [
-		'acceptance_date', 
+		//'acceptance_date', 
 	];
 
     /**
