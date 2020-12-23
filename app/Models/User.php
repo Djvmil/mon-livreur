@@ -43,9 +43,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @package App\Models
  */
 class User extends Authenticatable
-{   
+{
 	use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
-	
+
 	protected $casts = [
 		'id_identity_type' => 'int',
 		'id_pays' => 'int',
@@ -67,6 +67,9 @@ class User extends Authenticatable
 		'remember_token'
 	];
 
+ 
+  
+
 	protected $fillable = [
 		'firstname',
 		'lastname',
@@ -82,6 +85,7 @@ class User extends Authenticatable
 		'identity_value',
 		'is_identity_verify',
 		'identity_verified_at',
+		'profile_photo_path',
 		'url_img',
 		'address',
 		'id_pays',
@@ -114,3 +118,4 @@ class User extends Authenticatable
 		return $this->hasMany(\App\Models\ProviderService::class, 'id_user');
 	}
 }
+  

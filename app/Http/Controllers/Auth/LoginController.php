@@ -9,6 +9,7 @@ use App\Models\AuthOtp;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator; 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\JsonResponse;
 
 class LoginController extends Controller
 {
@@ -61,7 +62,7 @@ class LoginController extends Controller
 
                 $resData['access_token'] =  $user->createToken('MonlivreurAuth')->accessToken; 
 
-                return  $this->sendResponse($resData, 'Connexion réussie', 'Connexion réussie'); 
+                return  $this->sendResponse($resData, 'Connexion réussie', 'Successful connection'); 
 
             } else 
                 return $this->sendResponse(null, 'Identifiant ou Mot de passe incorecte', "", 401); 
@@ -73,15 +74,4 @@ class LoginController extends Controller
         }
      }
 
-
-    function otpCode()
-    {
-        $chiffres = array('0','1','2','3','4','5','6','7','8','9');
-        $positions = array_rand($chiffres, 4);
-        $otpCode = null;
-         
-        foreach($positions as $valeur) $otpCode .= $chiffres[$valeur];
-         
-        return $otpCode;
-    }
 }

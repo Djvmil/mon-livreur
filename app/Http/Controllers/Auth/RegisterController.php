@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Models\User;
+use App\Models\Admin;
+use App\Models\Customer;
+use App\Models\ProviderService;
+use App\Models\User; 
 use App\Models\AuthOtp; 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Validator; 
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\Constants;
-use App\Http\Service\SendSms;
+use App\Http\Service\SendSms; 
 
 class RegisterController extends Controller
 {
@@ -24,9 +27,9 @@ class RegisterController extends Controller
     | validation and creation. By default this controller uses a trait to
     | provide this functionality without requiring any additional code.
     |
-    */ 
+    */
 
- 
+
     /**
      * Get a validator for an incoming registration request.
      *
@@ -55,8 +58,8 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
         ]);
-    } 
- 
+    }
+
     public function  register(Request $request){
         try {
             // start transaction
@@ -64,30 +67,72 @@ class RegisterController extends Controller
 
              $validateData = Validator::make($request->all(), [
                 'firstname' => 'required',
-                'lastname' => 'required',  
+                'lastname' => 'required',
                 'email' => 'email|required|unique:users',
                 'password' =>'required',
-                'phone' => 'required|unique:users' 
+                'phone' => 'required|unique:users'
             ]);
 
             if($validateData->fails())
                 return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
-            
-            $path = "";
-            if(isset($request->identity_value))
-                    $path = $request->file('identity_value')->store('identity');
-            
+
             $userData = request()->all();
+            if(isset($request->identity_value))
+                $userData['identity_value']  = $request->file('identity_value')->store('identity');
+
+            if(isset($request->profile_photo_path))
+                $userData['profile_photo_path']  = $request->file('profile_photo_path')->store('profile');
+ 
             $userData['password'] = bcrypt($request->password); 
-            $userData['identity_value'] = $path; 
-            $client = User::create($userData);
-  
+ 
+            $user = User::create($userData);
+
+         /*   //if(isset($request->id_user_type) && $request->id_user_type == 1)
+                
+            if(isset($request->id_user_type) && $request->id_user_type == 2)
+                Customer::create([
+                    "id_user" => $user->id,
+                    "avis" => "RAS",
+                ]);
+                
+            else if(isset($request->id_user_type) && $request->id_user_type == 3)
+                ProviderService::create([
+                    "id_user" => $user->id,
+                    "avis" => "RAS",
+                ]); 
+*/
+
+
+                $type_user = $user->id_user_type;
+                if($user && $type_user == Constants::USER_TYPE_CLIENT ) {
+                    //$iduser=$client->get('id');
+                    $datacustomer = new Customer();
+                    $datacustomer->id_user = $user->id;
+                    $datacustomer->avis = $request->get('avis', 'RAS');
+                    $datacustomer->save();
+                }
+                elseif($user && $type_user == Constants::USER_TYPE_PRESTATAIRE){
+                    $dataprovider = new ProviderService();
+                    $dataprovider->id_user = $user->id;
+                    $dataprovider->avis = $request->get('avis', 'RAS');
+                    $dataprovider->save();
+                }
+                elseif($user && $type_user == Constants::USER_TYPE_ADMIN){
+                    $dataadmin = new Admin();
+                    $dataadmin->id_user = $user->id;
+                    $dataadmin->avis = $request->get('avis', 'RAS');
+                    $dataadmin->save();
+                }
+                else{
+                    return  $this->sendResponse(null, 'ce type d\'utilisateur n\'existe pas', 'ce type d\'utilisateur n\'existe pas', 400);
+                  
+                } 
+                 
             // commit transaction
-            DB::commit(); 
-            
+            DB::commit();
             $msg = "Souscription effectué avec succés.";
-            return  $this->sendResponse(null, $msg, $msg, 200);
-        
+            return  $this->sendResponse(null, $msg, "Subscription successfully completed");
+
         } catch (\Throwable $th) {
             //throw $th;
             DB::rollback();

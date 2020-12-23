@@ -17,9 +17,18 @@ class UserTypeTableSeeder extends Seeder
     {
         DB::table('user_types')->delete(); 
         $data = [
-            ["name" => "ADMINISTRATEUR"],
-            ["name" => "CLIENT"], 
-            ["name" => "PRESTATAIRE"], 
+            [
+                "id" => 1,
+                "name" => "ADMINISTRATEUR"
+            ],
+            [
+                "id" => 2,
+                "name" => "CLIENT"
+            ], 
+            [
+                "id" => 3,
+                "name" => "PRESTATAIRE"
+            ], 
         ];
         
         UserType::insert(array(

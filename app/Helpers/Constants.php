@@ -37,6 +37,14 @@ class Constants
 	 const EXPIRE_OTP = 10;
 
 
+	 const WAITING_FOR_TAKE_STATE = "WAITING_FOR_TAKE";
+	 const TAKEN_STATE = "TAKEN";
+	 const IN_PROGRESS_STATE = "IN_PROGRESS";
+	 const DELIVERED_STATE = "DELIVERED";
+	 const BLOCKED_STATE = "BLOCKED";
+
+
+
 	 static function OTP_CODE()
 	 {
 		 $chiffres = array('0','1','2','3','4','5','6','7','8','9');
