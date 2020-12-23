@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator; 
 use App\Models\AuthOtp; 
 use App\Models\User;
+use App\Models\Advert;
+use App\Models\Customer;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\Constants;
 use App\Http\Service\SendSms;
@@ -20,6 +22,15 @@ class UserController extends Controller
         try {
             $user = auth()->user();
             
+            if( $user->id_user_type == Constants::USER_TYPE_CLIENT ){
+
+                $customer = Customer::where("id_user", $user->id)->first();
+                $allAdvert = Advert::where("id_customer", $customer->id)->get();
+                
+                $advertCount = $allAdvert->count();
+                $user['advert-count'] = $advertCount;
+            }
+
             $user['user_type'] = auth()->user()->user_type->name;
 
             return  $this->sendResponse($user, "Informations de l'utilisateur", "User informations"); 

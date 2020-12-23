@@ -84,7 +84,7 @@ class AdvertController extends Controller
     {
         try {
             $user = auth()->user();
-            if($user->id_user_type == 1){
+            if($user->id_user_type == Constants::USER_TYPE_ADMIN){
                 $provider = ProviderService::where("id_user", $user->id)->first();
 
                 //$allAdvert = Advert::where("id_customer", $provider->id)->get(); 
@@ -92,7 +92,7 @@ class AdvertController extends Controller
                 $msg = "Service en cours de developpement";
                 return  $this->sendResponse(null, $msg, "Service under development");
 
-            } else if($user->id_user_type == 2){
+            } else if($user->id_user_type  == Constants::USER_TYPE_CLIENT ){
                 $customer = Customer::where("id_user", $user->id)->first();
 
                 $allAdvert = Advert::where("id_customer", $customer->id)->get();
