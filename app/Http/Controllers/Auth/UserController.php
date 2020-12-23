@@ -28,7 +28,7 @@ class UserController extends Controller
                 $allAdvert = Advert::where("id_customer", $customer->id)->get();
                 
                 $advertCount = $allAdvert->count();
-                $user['advert-count'] = $advertCount;
+                $user['advert_count'] = $advertCount;
             }
 
             $user['user_type'] = auth()->user()->user_type->name;
