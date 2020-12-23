@@ -18,7 +18,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $avis
  *
  * @property \App\Models\User $user
- *
+ * *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property string $deleted_at 
  * @package App\Models
  */
 class Customer extends Eloquent

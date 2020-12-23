@@ -18,14 +18,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * 
  * @property \Illuminate\Database\Eloquent\Collection $users
  *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property string $deleted_at 
  * @package App\Models
  */
 class UserType extends Eloquent
 {
 	use SoftDeletes; 
 	
-	protected $table = 'user_types';
-	public $timestamps = false;
+	protected $table = 'user_types'; 
 
 	protected $fillable = [
 		'name'

@@ -17,14 +17,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $id_user
  * 
  * @property \App\Models\User $user
- *
+ * *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property string $deleted_at 
  * @package App\Models
  */
 class AuthOtp extends Eloquent
 {
 	use SoftDeletes; 
-	
-	public $timestamps = false;
+	 
     protected $table = 'auth_otp';
 
 	protected $casts = [
