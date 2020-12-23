@@ -1,8 +1,11 @@
 <?php
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PrestataireController;
-use App\Http\Controllers\ClientController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\UserController;
+use App\Http\Controllers\AdvertController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -15,6 +18,28 @@ use App\Http\Controllers\ClientController;
 |
 */
 
+
+Route::post('register', [RegisterController::class, 'register']);
+Route::post('login',  [LoginController::class, 'login']);
+
+Route::post('check',  [UserController::class, 'check']);
+Route::post('otp-confirmation', [UserController::class, 'otpConfirmation']);
+
+Route::group(['middleware' => 'auth:api'], function() {
+    Route::post('logout',  [LoginController::class, 'logout']);
+    Route::get('get-profile',  [UserController::class, 'show']);
+    Route::post('update-profile',  [UserController::class, 'update']); 
+
+    Route::post('create-advert',[AdvertController::class, 'create']);
+
+    Route::post('update-advert',[AdvertController::class, 'update']);
+    Route::post('apply-on-advert',[AdvertController::class, 'applyOnAdvert']);
+    Route::get('adverts/{id}',[AdvertController::class, 'advertById']);
+    Route::get('adverts',[AdvertController::class, 'allAdvert']);
+});
+
+
+/*
 Route::middleware('auth:sanctum')->get('/admin', function (Request $request) {
     return $request->user();
 });
@@ -41,3 +66,4 @@ Route::get('/{provider}', [PrestataireController::class, 'redirectToProvider'])-
 Route::get('/{provider}/callback', [PrestataireController::class, 'handleProviderCallback'])->where('provider', 'facebook|google');
 
 
+*/

@@ -8,6 +8,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+/** 
+* @property \Carbon\Carbon $created_at
+* @property \Carbon\Carbon $updated_at
+* @property string $deleted_at
+*/
 class Admin extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens;

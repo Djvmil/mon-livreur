@@ -86,13 +86,16 @@ class PrestataireController extends Controller
             'telephone' => 'required',
             'adresse_depart' => 'required',
             'avis'=>'max:1000',
-            'solde_compte'=>'',
-            'piece_identite'=>'mimes:jpeg,png,jpg,gif,svg,pdf|max:2048'
+            'solde_compte'=>''
+            //'piece_identite'=>'mimes:jpeg,png,jpg,gif,svg,pdf|max:2048'
         ]);
         if($validateData->fails()){
             return response()->json(['error'=>$validateData->errors()],401);
         }
-        $path = $request->file('piece_identite')->store('identitePrestataire');
+
+ 	$path = "";
+        if(isset($request->piece_identite))
+           $path = $request->file('piece_identite')->store('identitePrestataire');
 
         $prestataireinput=$request->all();
         $prestataireinput['password'] = bcrypt($request->password);
