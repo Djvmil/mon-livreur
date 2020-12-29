@@ -65,9 +65,9 @@ class UserController extends Controller
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
 
         }
-     }
+    }
  
-     public function  check(Request $request){
+    public function  check(Request $request){
  
         try {     
             $validateData = Validator::make($request->all(), [
@@ -150,9 +150,9 @@ class UserController extends Controller
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
 
         }
-     }
+    }
   
-     public function  otpConfirmation(Request $request){
+    public function  otpConfirmation(Request $request){
          
         try {
              $validateData = Validator::make($request->all(), [
