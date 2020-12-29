@@ -176,8 +176,8 @@ class AdvertController extends Controller
 
             if(!isset($provider)){
                 if($user->id_user_type != Constants::USER_TYPE_PRESTATAIRE){
-                    $msg = "Avec votre profil, vous ne pouvez pas potuler sur une annonce ";
-                    $debugMsg = "";
+                    $msg = "Avec votre profil, vous ne pouvez pas potuler sur une annonce";
+                    $debugMsg = "With your profile, you cannot potulate on an advert";
                     return  $this->sendResponse(null, $msg, $debugMsg);
                 }
             }
