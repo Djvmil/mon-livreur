@@ -8,6 +8,10 @@ use App\Models\User;
 use App\Models\Customer;
 use App\Models\ProviderService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Helpers\Constants;
+use App\Http\Service\SendSms;
+use Illuminate\Support\Str; 
 use Illuminate\Support\Facades\Validator; 
 
 class AdvertController extends Controller
