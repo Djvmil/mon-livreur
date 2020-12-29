@@ -42,6 +42,7 @@ class Constants
 	 const IN_PROGRESS_STATE = "IN_PROGRESS";
 	 const DELIVERED_STATE = "DELIVERED";
 	 const BLOCKED_STATE = "BLOCKED";
+	 const DEFAULT_PER_PAGE = 10;
 
 
 
