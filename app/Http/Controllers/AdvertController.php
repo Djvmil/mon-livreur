@@ -73,7 +73,7 @@ class AdvertController extends Controller
             ]); 
 
             $msg = "Annonce créée avec succès";
-            return  $this->sendResponse(null, $advert, "advert created successfully");
+            return  $this->sendResponse(null, $msg, "advert created successfully");
 
         } catch (\Throwable $th) {
             //throw $th;
@@ -164,7 +164,7 @@ class AdvertController extends Controller
     { 
         try {
             $user = auth()->user();
-            $provider = ProviderService::find($user->id);
+            $provider = ProviderService::where("id_user", $user->id)->first(); 
 
             $validateData = Validator::make($request->all(), [
                 'id_advert'=>'required' 
@@ -172,8 +172,7 @@ class AdvertController extends Controller
     
             if($validateData->fails())
                 return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
-
-
+ 
             if(!isset($provider)){
                 if($user->id_user_type != Constants::USER_TYPE_PRESTATAIRE){
                     $msg = "Avec votre profil, vous ne pouvez pas potuler sur une annonce";
@@ -192,7 +191,7 @@ class AdvertController extends Controller
             $apply = AdvertResponse::create($applyData);  
             
             $msg = "Vous avez postuler avec succès sur l'annonce";
-            return  $this->sendResponse(null, $msg, "");
+            return  $this->sendResponse(null, $msg, "You have successfully applied on the advert");
 
         } catch (\Throwable $th) {
             //throw $th;
