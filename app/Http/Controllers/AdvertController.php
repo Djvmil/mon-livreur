@@ -215,7 +215,12 @@ class AdvertController extends Controller
  
             $res = Advert::where("id", $request->id)->update($updateData); 
 
-            return  $this->sendResponse(Advert::find($request->id), "Informations annonce mises à jour", "Advert informations updated"); 
+            $advert = Advert::find($request->id);
+
+            if($advert->state == Constants::DELETED_STATE)
+                $advert->delete();
+
+            return  $this->sendResponse($advert, "Informations annonce mises à jour", "Advert informations updated"); 
         } catch (\Throwable $th) {
             //throw $th;
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
