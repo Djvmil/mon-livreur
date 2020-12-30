@@ -62,7 +62,7 @@ class AdvertController extends Controller
             $advert   =Advert::create([
                 'name' => $request->name,
                 'departure_city' => $request->departure_city,
-                'arrival_city' => $request->departure_city,
+                'arrival_city' => $request->arrival_city,
                 'departure_date' => isset($request->departure_date) ? $request->departure_date : "null",
                 'acceptance_date' => isset($request->departure_date) ? $request->departure_date : "null",
                 'description' => isset($request->description) ? $request->description : "null",
