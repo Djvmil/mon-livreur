@@ -278,6 +278,10 @@ class AdvertController extends Controller
             if($request->has("state") && !isset($request->state)) 
                 $updateData["state"] = $advert->state; 
 
+            if($request->has("state") && isset($request->state) && $request->state == Constants::TAKEN_STATE){
+                $updateData["taken"] = true;     
+            }
+
             $res = Advert::where(["id" => $request->id, "id_customer" => $providerOrProvider->id])->update($updateData); 
             $advert = Advert::find($request->id);
             
