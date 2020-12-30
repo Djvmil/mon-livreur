@@ -243,10 +243,22 @@ class AdvertController extends Controller
     public function  update(Request $request){
         try {
             $user = auth()->user(); 
-            $customer   = Customer::where("id_user", $user->id)->first(); 
+            $providerOrProvider = null;
+            if($user->id_user_type == Constants::USER_TYPE_PRESTATAIRE){
 
-            if(!isset($customer)) 
-                return  $this->sendResponse(null, "Client non trouvée", "Customer not found"); 
+                $providerOrProvider   = ProviderService::where("id_user", $user->id)->first(); 
+
+            if(!isset($providerOrProvider)) 
+                    return  $this->sendResponse(null, "Prestataire non trouvée", "Provider not found"); 
+ 
+                $msg = "Service en cours de developpement";
+                return  $this->sendResponse(null, $msg, "Service under development");
+
+            }else{
+                $providerOrProvider   = Customer::where("id_user", $user->id)->first(); 
+                if(!isset($providerOrProvider)) 
+                    return  $this->sendResponse(null, "Client non trouvée", "Customer not found"); 
+            }
             
             $validateData = Validator::make($request->all(), [
                 'id'=>'required' 
@@ -260,18 +272,16 @@ class AdvertController extends Controller
             if(!isset($advert)) 
                 return  $this->sendResponse(null, "Annonce non trouvée", "Advert not found"); 
             
-
             $updateData = request()->all(); 
 
-            if($request->has("state") && !isset($request->state)) 
-                $updateData["state"] = $advert->sate; 
 
-            $res = Advert::where(["id" => $request->id, "id_customer" => $customer->id])->update($updateData); 
+            if($request->has("state") && !isset($request->state)) 
+                $updateData["state"] = $advert->state; 
+
+            $res = Advert::where(["id" => $request->id, "id_customer" => $providerOrProvider->id])->update($updateData); 
             $advert = Advert::find($request->id);
             
-
-
-            if($res == 0 && $customer->id != $advert->id_customer) 
+            if($res == 0 && $providerOrProvider->id != $advert->id_customer) 
                 return  $this->sendResponse(null, "Vous ne pouvez modifier que les annonces que vous avez publié", "You can only edit the adverts you posted"); 
  
             if($advert->state == Constants::DELETED_STATE){
