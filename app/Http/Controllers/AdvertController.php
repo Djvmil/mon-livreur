@@ -96,7 +96,11 @@ class AdvertController extends Controller
 
             } else if($user->id_user_type  == Constants::USER_TYPE_CLIENT ){
                 $customer = Customer::where("id_user", $user->id)->first(); 
-                
+
+
+                if(!isset($customer)) 
+                return  $this->sendResponse(null, "Client non trouvée", "Customer not found"); 
+                    
                 /* $queryAdverts = DB::table('adverts')
                 ->select('id', 'departure_city', 'arrival_city', 'state',
                         'acceptance_date', 'departure_date', 'created_at', 'updated_at')
@@ -145,7 +149,7 @@ class AdvertController extends Controller
     {
         try {
             $user = auth()->user();  
-            $customer  = Customer::where("id_user", $user->id)->first(); 
+            $customer  = Customer::where("id_user", $user->id)->first();  
 /*
             $advert    = null;
             if($user->id_user_type == 2) {
@@ -161,6 +165,10 @@ class AdvertController extends Controller
             }*/
               
             $advert = Advert::find($id);
+
+            if(!isset($advert)) 
+                return  $this->sendResponse(null, "Annonce non trouvée", "Advert not found"); 
+                
             $msg = "Informations annonce ";
             return  $this->sendResponse($advert, $msg, "Advert informations");
 
@@ -180,6 +188,9 @@ class AdvertController extends Controller
             $validateData = Validator::make($request->all(), [
                 'id_advert'=>'required' 
             ]);
+
+            if(!isset($provider)) 
+                return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found"); 
     
             if($validateData->fails())
                 return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
@@ -222,7 +233,9 @@ class AdvertController extends Controller
             $user = auth()->user(); 
             $customer   = Customer::where("id_user", $user->id)->first(); 
 
-
+            if(!isset($customer)) 
+                return  $this->sendResponse(null, "Client non trouvée", "Customer not found"); 
+            
             $validateData = Validator::make($request->all(), [
                 'id'=>'required' 
             ]);
@@ -230,21 +243,31 @@ class AdvertController extends Controller
             if($validateData->fails())
                 return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
  
-
-            $updateData = request()->all();
- 
-            $res = Advert::where(["id" => $request->id, "id_customer" => $customer->id])->update($updateData); 
             $advert = Advert::find($request->id);
 
+            if(!isset($advert)) 
+                return  $this->sendResponse(null, "Annonce non trouvée", "Advert not found"); 
+            
+
+            $updateData = request()->all(); 
+
+            if($request->has("state") && !isset($request->state)) 
+                $updateData["state"] = $advert->sate; 
+
+            $res = Advert::where(["id" => $request->id, "id_customer" => $customer->id])->update($updateData); 
+            $advert = Advert::find($request->id);
+            
+
+
             if($res == 0 && $customer->id != $advert->id_customer) 
-                return  $this->sendResponse($res, "Vous ne pouvez modifier que les annonces que vous avez publié", "You can only edit the adverts you posted"); 
+                return  $this->sendResponse(null, "Vous ne pouvez modifier que les annonces que vous avez publié", "You can only edit the adverts you posted"); 
  
             if($advert->state == Constants::DELETED_STATE){
                 $advert->delete();
-                return  $this->sendResponse($res, "Annonce supprimée avec succès", "Advert deleted"); 
+                return  $this->sendResponse(null, "Annonce supprimée avec succès", "Advert deleted"); 
             }
 
-            return  $this->sendResponse($res, "Informations annonce mises à jour", "Advert informations updated"); 
+            return  $this->sendResponse($advert, "Informations annonce mises à jour", "Advert informations updated"); 
         } catch (\Throwable $th) {
             //throw $th;
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
