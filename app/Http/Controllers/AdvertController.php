@@ -111,9 +111,9 @@ class AdvertController extends Controller
                 $queryAdverts = "SELECT id, departure_city, arrival_city, state,
                                     acceptance_date, departure_date, 
                                     (CASE WHEN taken = 0 THEN 'false' ELSE 'true' END) AS taken, price, nature_package, 
-                                    (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id ) as provider_response_count, created_at, updated_at
+                                    (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id) as provider_response_count, created_at, updated_at
                                     FROM adverts
-                            WHERE id_customer = '".$customer->id."'";
+                                    WHERE id_customer = '".$customer->id."' AND deleted_at is null ";
 
                 $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
 
@@ -124,7 +124,6 @@ class AdvertController extends Controller
                 }else{
                     $msg = "Vous n'avez pas d'annonce";
                     $debugMsg = "You don't have any advertising!";
-
                 }
 
                 return  $this->sendResponse($resultAdverts, $msg, $debugMsg);
@@ -134,7 +133,6 @@ class AdvertController extends Controller
                 return  $this->sendResponse(null, $msg, "Service under development");
 
             }
- 
 
         } catch (\Throwable $th) {
             //throw $th;
@@ -147,9 +145,22 @@ class AdvertController extends Controller
     {
         try {
             $user = auth()->user();  
+            $customer  = Customer::where("id_user", $user->id)->first(); 
+/*
+            $advert    = null;
+            if($user->id_user_type == 2) {
+                $advert = Advert::where(["id" => $id, "id_customer" => $customer->id]); 
+            }
+            else
+                $advert = Advert::find($id);
 
-            $advert = Advert::find($id);
+            if($customer->id != $advert->id_customer){
+                $msg = "Informations annonce ";
+                return  $this->sendResponse($advert, $msg, "Advert informations");
+
+            }*/
               
+            $advert = Advert::find($id);
             $msg = "Informations annonce ";
             return  $this->sendResponse($advert, $msg, "Advert informations");
 
@@ -209,18 +220,31 @@ class AdvertController extends Controller
     public function  update(Request $request){
         try {
             $user = auth()->user(); 
-            $customer   = User::find($user->id);
+            $customer   = Customer::where("id_user", $user->id)->first(); 
+
+
+            $validateData = Validator::make($request->all(), [
+                'id'=>'required' 
+            ]);
+    
+            if($validateData->fails())
+                return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
+ 
 
             $updateData = request()->all();
  
-            $res = Advert::where("id", $request->id)->update($updateData); 
-
+            $res = Advert::where(["id" => $request->id, "id_customer" => $customer->id])->update($updateData); 
             $advert = Advert::find($request->id);
 
-            if($advert->state == Constants::DELETED_STATE)
+            if($res == 0 && $customer->id != $advert->id_customer) 
+                return  $this->sendResponse($res, "Vous ne pouvez modifier que les annonces que vous avez publié", "You can only edit the adverts you posted"); 
+ 
+            if($advert->state == Constants::DELETED_STATE){
                 $advert->delete();
+                return  $this->sendResponse($res, "Annonce supprimée avec succès", "Advert deleted"); 
+            }
 
-            return  $this->sendResponse($advert, "Informations annonce mises à jour", "Advert informations updated"); 
+            return  $this->sendResponse($res, "Informations annonce mises à jour", "Advert informations updated"); 
         } catch (\Throwable $th) {
             //throw $th;
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
