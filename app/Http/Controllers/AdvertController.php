@@ -136,8 +136,22 @@ class AdvertController extends Controller
                     return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found"); 
 
                 $allAdvert = Advert::where("taken", false)->get(); 
+ 
+                $queryAdverts = "SELECT adverts.id, adverts.departure_city, adverts.arrival_city, state,
+                                    adverts.acceptance_date, adverts.departure_date, users.firstname, users.lastname, 
+                                    (CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify,
+                                    (CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify,
+                                    (CASE WHEN users.is_identity_verify = 0 THEN 'false' ELSE 'true' END) AS is_identity_verify, 
+                                    users.created_at as user_registration_date,
+                                    (CASE WHEN taken = 0 THEN 'false' ELSE 'true' END) AS taken, price, nature_package, 
+                                    (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id) as provider_response_count, adverts.created_at, adverts.updated_at
+                                    FROM adverts, customers, users 
+                                    WHERE adverts.id_customer = customers.id AND customers.id_user = users.id AND taken is false";
 
-                if(isset($allAdvert) && count($allAdvert) > 0){
+                $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
+
+
+                if(isset($resultAdverts) && count($resultAdverts) > 0){
                     $msg = "Tous les annonces";
                     $debugMsg = "All advertisements";
                 }else{
@@ -145,7 +159,7 @@ class AdvertController extends Controller
                     $debugMsg = "There is no advert available!";
                 }
 
-                return  $this->sendResponse($allAdvert, $msg, $debugMsg); 
+                return  $this->sendResponse($resultAdverts, $msg, $debugMsg); 
 
             }
 
