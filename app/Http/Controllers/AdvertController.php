@@ -112,11 +112,12 @@ class AdvertController extends Controller
                 //$allAdvert = Advert::where("id_customer", $customer->id)->get(); 
                 
                 $queryAdverts = "SELECT id, departure_city, arrival_city, state,
-                                    acceptance_date, departure_date, 
-                                    (CASE WHEN taken = 0 THEN 'false' ELSE 'true' END) AS taken, price, nature_package, 
-                                    (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id) as provider_response_count, created_at, updated_at
+                                        acceptance_date, departure_date, 
+                                        (CASE WHEN taken = 0 THEN 'false' ELSE 'true' END) AS taken, price, nature_package, 
+                                        (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id) as provider_response_count, created_at, updated_at
                                     FROM adverts
-                                    WHERE id_customer = '".$customer->id."' AND deleted_at is null ";
+                                    WHERE id_customer = '".$customer->id."' 
+                                    AND deleted_at is null ";
 
                 $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
 
@@ -131,6 +132,7 @@ class AdvertController extends Controller
 
                 return  $this->sendResponse($resultAdverts, $msg, $debugMsg);
             } else{
+
                 $provider = ProviderService::where("id_user", $user->id)->first();
                 if(!isset($provider)) 
                     return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found"); 
@@ -138,15 +140,18 @@ class AdvertController extends Controller
                 $allAdvert = Advert::where("taken", false)->get(); 
  
                 $queryAdverts = "SELECT adverts.id, id_user, adverts.departure_city, adverts.arrival_city, state,
-                                    adverts.acceptance_date, adverts.departure_date, users.firstname, users.lastname, 
-                                    (CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify,
-                                    (CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify,
-                                    (CASE WHEN users.is_identity_verify = 0 THEN 'false' ELSE 'true' END) AS is_identity_verify, 
-                                    users.created_at as user_registration_date,
-                                    (CASE WHEN taken = 0 THEN 'false' ELSE 'true' END) AS taken, price, nature_package, 
-                                    (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id) as provider_response_count, adverts.created_at, adverts.updated_at
+                                        adverts.acceptance_date, adverts.departure_date, users.firstname, users.lastname, 
+                                        (CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify,
+                                        (CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify,
+                                        (CASE WHEN users.is_identity_verify = 0 THEN 'false' ELSE 'true' END) AS is_identity_verify, 
+                                        users.created_at as user_registration_date,
+                                        (CASE WHEN taken = 0 THEN 'false' ELSE 'true' END) AS taken, price, nature_package, 
+                                        (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id) as provider_response_count, adverts.created_at, adverts.updated_at
                                     FROM adverts, customers, users 
-                                    WHERE adverts.id_customer = customers.id AND customers.id_user = users.id AND adverts.taken is false  AND adverts.deleted_at is null ";
+                                    WHERE adverts.id_customer = customers.id 
+                                    AND customers.id_user = users.id 
+                                    AND adverts.taken is false  
+                                    AND adverts.deleted_at is null ";
 
                 $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
 
