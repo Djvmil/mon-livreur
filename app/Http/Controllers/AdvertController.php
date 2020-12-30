@@ -87,7 +87,6 @@ class AdvertController extends Controller
         try {
             $user = auth()->user();
             if($user->id_user_type == Constants::USER_TYPE_ADMIN){
-                $provider = ProviderService::where("id_user", $user->id)->first();
 
                 //$allAdvert = Advert::where("id_customer", $provider->id)->get(); 
 
@@ -132,9 +131,21 @@ class AdvertController extends Controller
 
                 return  $this->sendResponse($resultAdverts, $msg, $debugMsg);
             } else{
+                $provider = ProviderService::where("id_user", $user->id)->first();
+                if(!isset($provider)) 
+                    return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found"); 
 
-                $msg = "Service en cours de developpement";
-                return  $this->sendResponse(null, $msg, "Service under development");
+                $allAdvert = Advert::where("taken", false)->get(); 
+
+                if(isset($allAdvert) && count($allAdvert) > 0){
+                    $msg = "Tous les annonces";
+                    $debugMsg = "All advertisements";
+                }else{
+                    $msg = "Il n'y a pas d'annonce disponible";
+                    $debugMsg = "There is no advert available!";
+                }
+
+                return  $this->sendResponse($allAdvert, $msg, $debugMsg); 
 
             }
 
@@ -162,7 +173,8 @@ class AdvertController extends Controller
                 $msg = "Informations annonce ";
                 return  $this->sendResponse($advert, $msg, "Advert informations");
 
-            }*/
+            }
+*/
               
             $advert = Advert::find($id);
 
