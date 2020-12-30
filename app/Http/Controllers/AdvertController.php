@@ -137,7 +137,7 @@ class AdvertController extends Controller
 
                 $allAdvert = Advert::where("taken", false)->get(); 
  
-                $queryAdverts = "SELECT adverts.id, adverts.departure_city, adverts.arrival_city, state,
+                $queryAdverts = "SELECT adverts.id, id_user, adverts.departure_city, adverts.arrival_city, state,
                                     adverts.acceptance_date, adverts.departure_date, users.firstname, users.lastname, 
                                     (CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify,
                                     (CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify,
