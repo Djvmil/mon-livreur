@@ -146,7 +146,7 @@ class AdvertController extends Controller
                                     (CASE WHEN taken = 0 THEN 'false' ELSE 'true' END) AS taken, price, nature_package, 
                                     (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id) as provider_response_count, adverts.created_at, adverts.updated_at
                                     FROM adverts, customers, users 
-                                    WHERE adverts.id_customer = customers.id AND customers.id_user = users.id AND taken is false";
+                                    WHERE adverts.id_customer = customers.id AND customers.id_user = users.id AND taken is false  AND deleted_at is null ";
 
                 $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
 
