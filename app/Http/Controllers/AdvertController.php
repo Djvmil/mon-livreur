@@ -111,7 +111,7 @@ class AdvertController extends Controller
 
                 //$allAdvert = Advert::where("id_customer", $customer->id)->get(); 
                 
-                $queryAdverts = "SELECT adverts.id, name, description, departure_city, arrival_city, state,
+                $queryAdverts = "SELECT adverts.id, adverts.name, adverts.description, departure_city, arrival_city, adverts.state,
                                         acceptance_date, departure_date, 
                                         (CASE WHEN taken = 0 THEN 'false' ELSE 'true' END) AS taken, price, nature_package, 
                                         (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id) as provider_response_count, created_at, updated_at
