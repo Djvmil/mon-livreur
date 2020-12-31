@@ -144,14 +144,19 @@ class AdvertController extends Controller
                                         (CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify,
                                         (CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify,
                                         (CASE WHEN users.is_identity_verify = 0 THEN 'false' ELSE 'true' END) AS is_identity_verify, 
-                                        users.created_at as user_registration_date,
+                                        users.created_at AS user_registration_date,
                                         (CASE WHEN taken = 0 THEN 'false' ELSE 'true' END) AS taken, adverts.price, adverts.nature_package, 
-                                        (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id) as provider_response_count, adverts.created_at, adverts.updated_at
+                                        (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id) AS provider_response_count, adverts.created_at, adverts.updated_at
                                     FROM adverts, customers, users 
                                     WHERE adverts.id_customer = customers.id 
                                     AND customers.id_user = users.id 
                                     AND adverts.taken is false  
-                                    AND adverts.deleted_at is null ";
+                                    AND adverts.deleted_at IS NULL
+                                    AND adverts.id 
+                                        NOT IN (SELECT advert_responses.id_advert 
+                                                FROM advert_responses 
+                                                WHERE advert_responses.id_provider_service = '".$provider->id."' 
+                                                AND advert_responses.id_advert = adverts.id )";
 
                 $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
 
