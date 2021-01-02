@@ -44,6 +44,9 @@ class Constants
 	 const BLOCKED_STATE = "BLOCKED";
 	 const DELETED_STATE = "DELETED";
 	 const CANCELED_STATE = "CANCELED";
+	 const ACCEPTED_STATUS = "ACCEPTED";
+	 const REFUSED_STATUS = "REFUSED";
+	 const WAITING_STATUS = "WAITING";
 	 const DEFAULT_PER_PAGE = 10;
 
 

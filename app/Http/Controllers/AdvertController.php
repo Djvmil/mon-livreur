@@ -136,8 +136,6 @@ class AdvertController extends Controller
                 $provider = ProviderService::where("id_user", $user->id)->first();
                 if(!isset($provider)) 
                     return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found"); 
-
-                $allAdvert = Advert::where("taken", false)->get(); 
  
                 $queryAdverts = "SELECT adverts.id, id_user, adverts.name, adverts.description, adverts.departure_city, adverts.arrival_city, adverts.state,
                                         adverts.acceptance_date, adverts.departure_date, users.firstname, users.lastname, users.profile_photo_path,
@@ -241,10 +239,10 @@ class AdvertController extends Controller
 
             $applyData = request()->all();   
             $applyData['id_provider_service'] = $provider->id;
-            $applyData['taken'] = isset($request->taken) ? $request->taken : false;
+            $applyData['taken'] = false;
             $applyData['price'] = isset($request->price) ? $request->price : 0; 
             $applyData['comment'] = isset($request->comment) ? $request->comment : "null";
-            $applyData['acceptance_date'] = isset($request->acceptance_date) ? $request->acceptance_date : "null";
+            $applyData['acceptance_date'] = "null";
  
             $apply = AdvertResponse::create($applyData);  
             
@@ -297,8 +295,7 @@ class AdvertController extends Controller
                 return  $this->sendResponse(null, "Annonce non trouvée", "Advert not found"); 
             
             $updateData = request()->all(); 
-
-
+  
             if($request->has("state") && !isset($request->state)) 
                 $updateData["state"] = $advert->state; 
 
@@ -323,7 +320,54 @@ class AdvertController extends Controller
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
 
         }
-     }
+    }
+
+
+ 
+    public function advertsByProvider(Request $request)
+    {
+        try {
+            $user = auth()->user();
+            $provider = ProviderService::where("id_user", $user->id)->first();
+            if(!isset($provider)) 
+                return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found"); 
+                
+            $provider = ProviderService::where("id_user", $user->id)->first();  
+ 
+            $queryAdverts = "SELECT adverts.id, users.id AS id_user, adverts.name, adverts.description, adverts.departure_city, adverts.arrival_city, 
+                                    adverts.acceptance_date, adverts.departure_date, users.firstname, users.lastname, users.profile_photo_path,
+                                    (CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify,
+                                    (CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify,
+                                    (CASE WHEN users.is_identity_verify = 0 THEN 'false' ELSE 'true' END) AS is_identity_verify, adverts.state,
+                                    (CASE WHEN adverts.taken = 1 AND advert_responses.taken = 1 THEN '".Constants::ACCEPTED_STATUS."' 
+                                          WHEN adverts.taken = 1 AND advert_responses.taken = 0 THEN '".Constants::REFUSED_STATUS."' 
+                                           ELSE '".Constants::WAITING_STATUS."' END) AS status,
+                                    users.created_at AS user_registration_date,
+                                    (CASE WHEN adverts.taken = 0 THEN 'false' ELSE 'true' END) AS taken, adverts.price, adverts.nature_package, 
+                                    (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id) AS provider_response_count, adverts.created_at, adverts.updated_at 
+                                FROM adverts, customers, users, advert_responses
+                                WHERE adverts.id_customer = customers.id 
+                                AND customers.id_user = users.id 
+                                AND advert_responses.id_provider_service = '".$provider->id."' 
+                                AND adverts.deleted_at IS NULL";
+
+            $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
+            
+            if(isset($resultAdverts) && count($resultAdverts) > 0){
+                $msg = "Tous les annonces";
+                $debugMsg = "All advertisements";
+            }else{
+                $msg = "Il n'y a pas d'annonce disponible";
+                $debugMsg = "There is no advert available!";
+            }
+
+            return  $this->sendResponse($resultAdverts, $msg, $debugMsg); 
+        } catch (\Throwable $th) {
+            //throw $th;
+            return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
+        } 
+    }
+
 
 
     /**

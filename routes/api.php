@@ -36,6 +36,7 @@ Route::group(['middleware' => 'auth:api'], function() {
     Route::post('apply-on-advert',[AdvertController::class, 'applyOnAdvert']);
     Route::get('adverts/{id}',[AdvertController::class, 'advertById']);
     Route::get('adverts',[AdvertController::class, 'allAdvert']);
+    Route::get('adverts-by-provider',[AdvertController::class, 'advertsByProvider']);
 });
 
 
