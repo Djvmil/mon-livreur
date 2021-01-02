@@ -60,7 +60,7 @@ class AdvertController extends Controller
             if($validateData->fails())
                 return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
 
-            $advert   =Advert::create([
+            $advert   = Advert::create([
                 'name' => $request->name,
                 'departure_city' => $request->departure_city,
                 'arrival_city' => $request->arrival_city,
@@ -82,8 +82,13 @@ class AdvertController extends Controller
         }
     }
 
- 
-    public function allAdvert(Request $request)
+    /**
+     * Client: Tous les annonces d'un client
+     * 
+     * Prestataire: Tous les annonces avec comme status: POSTULED | NOT_POSTULED
+     * 
+     */
+    public function adverts(Request $request)
     {
         try {
             $user = auth()->user();
@@ -139,6 +144,9 @@ class AdvertController extends Controller
                     return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found"); 
  
                 $queryAdverts = "SELECT adverts.id, id_user, adverts.name, adverts.description, adverts.departure_city, adverts.arrival_city, adverts.state,
+                                        (CASE WHEN 
+                                            (SELECT id FROM advert_responses WHERE id_advert = adverts.id AND advert_responses.id_provider_service = '".$provider->id."') 
+                                            IS NOT NULL THEN 'POSTULED' ELSE 'NOT_POSTULED' END) AS status,
                                         adverts.acceptance_date, adverts.departure_date, users.firstname, users.lastname, users.profile_photo_path,
                                         (CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify,
                                         (CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify,
@@ -150,12 +158,7 @@ class AdvertController extends Controller
                                     WHERE adverts.id_customer = customers.id 
                                     AND customers.id_user = users.id 
                                     AND adverts.taken is false  
-                                    AND adverts.deleted_at IS NULL
-                                    AND adverts.id 
-                                        NOT IN (SELECT advert_responses.id_advert 
-                                                FROM advert_responses 
-                                                WHERE advert_responses.id_provider_service = '".$provider->id."' 
-                                                AND advert_responses.id_advert = adverts.id )";
+                                    AND adverts.deleted_at IS NULL";
 
                 $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
 
@@ -178,13 +181,72 @@ class AdvertController extends Controller
         } 
     }
 
+
+    /**
+     * Prestataire: Tous les annonces sauf les annonces déjà postulé avec comme status: POSTULED
+     * 
+     */
+    public function advertsExceptPostulated(Request $request)
+    {
+        try {
+            $user = auth()->user();
+             
+            $provider = ProviderService::where("id_user", $user->id)->first();
+            if(!isset($provider)) 
+                return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found"); 
+
+            $queryAdverts = "SELECT adverts.id, id_user, adverts.name, adverts.description, adverts.departure_city, adverts.arrival_city, adverts.state,
+                                        (CASE WHEN 
+                                            (SELECT id FROM advert_responses WHERE id_advert = adverts.id AND advert_responses.id_provider_service = '".$provider->id."') 
+                                            IS NOT NULL THEN 'POSTULED' ELSE 'NOT_POSTULED' END) AS status,
+                                    adverts.acceptance_date, adverts.departure_date, users.firstname, users.lastname, users.profile_photo_path,
+                                    (CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify,
+                                    (CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify,
+                                    (CASE WHEN users.is_identity_verify = 0 THEN 'false' ELSE 'true' END) AS is_identity_verify, 
+                                    users.created_at AS user_registration_date,
+                                    (CASE WHEN taken = 0 THEN 'false' ELSE 'true' END) AS taken, adverts.price, adverts.nature_package, 
+                                    (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id) AS provider_response_count, adverts.created_at, adverts.updated_at
+                                FROM adverts, customers, users 
+                                WHERE adverts.id_customer = customers.id 
+                                AND customers.id_user = users.id 
+                                AND adverts.taken is false  
+                                AND adverts.deleted_at IS NULL
+                                AND adverts.id 
+                                    NOT IN (SELECT advert_responses.id_advert 
+                                            FROM advert_responses 
+                                            WHERE advert_responses.id_provider_service = '".$provider->id."' 
+                                            AND advert_responses.id_advert = adverts.id )";
+
+            $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
+
+
+            if(isset($resultAdverts) && count($resultAdverts) > 0){
+                $msg = "Tous les annonces";
+                $debugMsg = "All advertisements";
+            }else{
+                $msg = "Il n'y a pas d'annonce disponible";
+                $debugMsg = "There is no advert available!";
+            }
+
+            return  $this->sendResponse($resultAdverts, $msg, $debugMsg); 
+
+        } catch (\Throwable $th) {
+            //throw $th;
+            return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
+        } 
+    }
  
+    /**
+     * Prestataire | Client: Recuperé une annonce.
+     * Params(id)
+     *
+     */
     public function advertById($id)
     {
         try {
             $user = auth()->user();  
-            $customer  = Customer::where("id_user", $user->id)->first();  
-/*
+            //$customer  = Customer::where("id_user", $user->id)->first();  
+            /*
             $advert    = null;
             if($user->id_user_type == 2) {
                 $advert = Advert::where(["id" => $id, "id_customer" => $customer->id]); 
@@ -197,8 +259,7 @@ class AdvertController extends Controller
                 return  $this->sendResponse($advert, $msg, "Advert informations");
 
             }
-*/
-              
+            */         
             $advert = Advert::find($id);
 
             if(!isset($advert)) 
@@ -214,6 +275,11 @@ class AdvertController extends Controller
     }
  
  
+    /**
+     * Prestataire: Postuler sur une annonce.
+     * Params(id_advert)
+     *
+     */
     public function applyOnAdvert(Request $request)
     { 
         try {
@@ -238,7 +304,7 @@ class AdvertController extends Controller
                 }
             }
 
-            $advertResponse = AdvertResponse::where(["id_advert" => $request->id_advert, "id_provider_service" => $provider->id]);
+            $advertResponse = AdvertResponse::where(["id_advert" => $request->id_advert, "id_provider_service" => $provider->id])->first();
 
             if(isset($advertResponse)){
                 $msg = "Vous avez déjà postulé sur cette annonce";
@@ -308,9 +374,8 @@ class AdvertController extends Controller
             if($request->has("state") && !isset($request->state)) 
                 $updateData["state"] = $advert->state; 
 
-            if($request->has("state") && isset($request->state) && $request->state == Constants::TAKEN_STATE){
-                $updateData["taken"] = true;     
-            }
+            if($request->has("state") && isset($request->state) && $request->state == Constants::TAKEN_STATE) 
+                $updateData["taken"] = true;    
 
             $res = Advert::where(["id" => $request->id, "id_customer" => $providerOrProvider->id])->update($updateData); 
             $advert = Advert::find($request->id);
@@ -332,7 +397,11 @@ class AdvertController extends Controller
     }
 
 
- 
+    /**
+     * Prestataire: Tous les annonces d'un prestataire (les annonces qu'il a postulé ) 
+     * avec comme status: ACCEPTED_STATUS | REFUSED_STATUS | WAITING_STATUS
+     *
+     */
     public function advertsByProvider(Request $request)
     {
         try {
@@ -342,8 +411,8 @@ class AdvertController extends Controller
                 return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found", 400);
                 
             $provider = ProviderService::where("id_user", $user->id)->first();  
- 
-            $queryAdverts = "SELECT adverts.id, users.id AS id_user, adverts.name, adverts.description, adverts.departure_city, adverts.arrival_city, 
+ /*
+            $queryAdverts = "SELECT Distinct(adverts.id), users.id AS id_user, adverts.name, adverts.description, adverts.departure_city, adverts.arrival_city, 
                                     adverts.acceptance_date, adverts.departure_date, users.firstname, users.lastname, users.profile_photo_path,
                                     (CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify,
                                     (CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify,
@@ -358,8 +427,27 @@ class AdvertController extends Controller
                                 WHERE adverts.id_customer = customers.id 
                                 AND customers.id_user = users.id 
                                 AND advert_responses.id_provider_service = '".$provider->id."' 
-                                AND adverts.deleted_at IS NULL";
+                                AND adverts.deleted_at IS NULL
+                                AND adverts.id IN (SELECT id_advert FROM advert_responses WHERE advert_responses.id_provider_service = '".$provider->id."')
+                                GROUP BY id";*/
 
+            $queryAdverts = "SELECT Distinct(adverts.id), users.id AS id_user, adverts.name, adverts.description, adverts.departure_city, adverts.arrival_city, 
+                                adverts.acceptance_date, adverts.departure_date, users.firstname, users.lastname, users.profile_photo_path,
+                                (CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify,
+                                (CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify,
+                                (CASE WHEN users.is_identity_verify = 0 THEN 'false' ELSE 'true' END) AS is_identity_verify, adverts.state,
+                                (CASE WHEN adverts.taken = 1 AND (SELECT taken FROM advert_responses WHERE id_provider_service = '".$provider->id."' AND  id_advert = adverts.id) = 1 THEN '".Constants::ACCEPTED_STATUS."' 
+                                      WHEN adverts.taken = 1 AND (SELECT taken FROM advert_responses WHERE id_provider_service = '".$provider->id."' AND  id_advert = adverts.id) = 0 THEN '".Constants::REFUSED_STATUS."' 
+                                       ELSE '".Constants::WAITING_STATUS."' END) AS status ,
+                                users.created_at AS user_registration_date,
+                                (CASE WHEN adverts.taken = 0 THEN 'false' ELSE 'true' END) AS taken, adverts.price, adverts.nature_package, 
+                                (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id) AS provider_response_count, adverts.created_at, adverts.updated_at 
+                            FROM adverts, customers, users
+                            WHERE adverts.id_customer = customers.id 
+                            AND customers.id_user = users.id  
+                            AND adverts.deleted_at IS NULL
+                            AND adverts.id IN (SELECT id_advert FROM advert_responses WHERE advert_responses.id_provider_service = '".$provider->id."' AND  id_advert = adverts.id)";
+                            
             $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
             
             if(isset($resultAdverts) && count($resultAdverts) > 0){
@@ -377,7 +465,11 @@ class AdvertController extends Controller
         } 
     }
  
- 
+
+    /**
+     * Client: Tous les prestataire qui ont postuler dans une annonces.
+     *
+     */
     public function providersByAdvert($id)
     {
         try {
@@ -404,6 +496,11 @@ class AdvertController extends Controller
         } 
     }
  
+    /**
+     * Client: Choisir un prestataire.
+     * Params(id_provider, id_advert)
+     *
+     */
     public function chooseThisProvider(Request $request)
     {
         try {
@@ -415,7 +512,7 @@ class AdvertController extends Controller
             if(!isset($customer))
                 return  $this->sendResponse(null, "Client non trouvée", "Customer not found", 400);
 
-            $provider = ProviderService::where("id_user", $request->id_provider)->first();
+            $provider = ProviderService::where("id", $request->id_provider)->first();
             if(!isset($provider))
                 return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found", 400);
 
@@ -431,6 +528,7 @@ class AdvertController extends Controller
                 return  $this->sendResponse(null, "Vous avez déjà choisi un prestataire, veuillez annulée la livraison pour pouvoir choisir un autre prestataire", "You have already chosen a providerService, please cancel the delivery to be able to choose another providerService", 400);
                   
             $advert->taken = true;
+            $advert->state = Constants::TAKEN_STATE;
             $advert->acceptance_date = Carbon::now();
 
             $advertResponse->taken = true;

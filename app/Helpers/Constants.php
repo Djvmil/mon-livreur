@@ -2,7 +2,7 @@
 namespace App\Helpers;
 /**
  * 
- * @author El Hadji Dame Cisse
+ * @author Djvmil
  *
  */
 class Constants
