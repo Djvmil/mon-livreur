@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Helpers\Constants;
 use App\Http\Service\SendSms;
 use Illuminate\Support\Str; 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator; 
 
 class AdvertController extends Controller
@@ -224,7 +225,7 @@ class AdvertController extends Controller
             ]);
 
             if(!isset($provider)) 
-                return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found"); 
+                return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found", 400);
     
             if($validateData->fails())
                 return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
@@ -237,6 +238,14 @@ class AdvertController extends Controller
                 }
             }
 
+            $advertResponse = AdvertResponse::where(["id_advert" => $request->id_advert, "id_provider_service" => $provider->id]);
+
+            if(isset($advertResponse)){
+                $msg = "Vous avez déjà postulé sur cette annonce";
+                $debugMsg = "You have already applied for this advert";
+                return  $this->sendResponse(null, $msg, $debugMsg);
+            }
+
             $applyData = request()->all();   
             $applyData['id_provider_service'] = $provider->id;
             $applyData['taken'] = false;
@@ -246,7 +255,7 @@ class AdvertController extends Controller
  
             $apply = AdvertResponse::create($applyData);  
             
-            $msg = "Vous avez postuler avec succès sur l'annonce";
+            $msg = "Vous avez postulé avec succès sur l'annonce";
             return  $this->sendResponse(null, $msg, "You have successfully applied on the advert");
 
         } catch (\Throwable $th) {
@@ -271,7 +280,7 @@ class AdvertController extends Controller
                 $providerOrProvider   = ProviderService::where("id_user", $user->id)->first(); 
 
             if(!isset($providerOrProvider)) 
-                    return  $this->sendResponse(null, "Prestataire non trouvée", "Provider not found"); 
+                    return  $this->sendResponse(null, "Prestataire non trouvée", "Provider not found", 400);
  
                 $msg = "Service en cours de developpement";
                 return  $this->sendResponse(null, $msg, "Service under development");
@@ -279,7 +288,7 @@ class AdvertController extends Controller
             }else{
                 $providerOrProvider   = Customer::where("id_user", $user->id)->first(); 
                 if(!isset($providerOrProvider)) 
-                    return  $this->sendResponse(null, "Client non trouvée", "Customer not found"); 
+                    return  $this->sendResponse(null, "Client non trouvée", "Customer not found", 400);
             }
             
             $validateData = Validator::make($request->all(), [
@@ -292,7 +301,7 @@ class AdvertController extends Controller
             $advert = Advert::find($request->id);
 
             if(!isset($advert)) 
-                return  $this->sendResponse(null, "Annonce non trouvée", "Advert not found"); 
+                return  $this->sendResponse(null, "Annonce non trouvée", "Advert not found", 400);
             
             $updateData = request()->all(); 
   
@@ -307,7 +316,7 @@ class AdvertController extends Controller
             $advert = Advert::find($request->id);
             
             if($res == 0 && $providerOrProvider->id != $advert->id_customer) 
-                return  $this->sendResponse(null, "Vous ne pouvez modifier que les annonces que vous avez publié", "You can only edit the adverts you posted"); 
+                return  $this->sendResponse(null, "Vous ne pouvez modifier que les annonces que vous avez publié", "You can only edit the adverts you posted", 400);
  
             if($advert->state == Constants::DELETED_STATE){
                 $advert->delete();
@@ -330,7 +339,7 @@ class AdvertController extends Controller
             $user = auth()->user();
             $provider = ProviderService::where("id_user", $user->id)->first();
             if(!isset($provider)) 
-                return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found"); 
+                return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found", 400);
                 
             $provider = ProviderService::where("id_user", $user->id)->first();  
  
@@ -367,8 +376,82 @@ class AdvertController extends Controller
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
         } 
     }
+ 
+ 
+    public function providersByAdvert($id)
+    {
+        try {
+            $user = auth()->user();
 
+            $customer = Customer::where("id_user", $user->id)->first();  
+            if(!isset($customer))
+                return  $this->sendResponse(null, "Client non trouvée", "Customer not found", 400);
+            
+            $advertResponse = AdvertResponse::where("id_advert", $id)->with("provider.user")->get(); 
+ 
+            if(isset($advertResponse) && count($advertResponse) > 0){
+                $msg = "liste prestataire";
+                $debugMsg = "provider list!";
+            }else{
+                $msg = "Aucun prestataire n'a encore postulé";
+                $debugMsg = "No provider has applied yet!";
+            }
 
+            return  $this->sendResponse($advertResponse, $msg, $debugMsg); 
+        } catch (\Throwable $th) {
+            //throw $th;
+            return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
+        } 
+    }
+ 
+    public function chooseThisProvider(Request $request)
+    {
+        try {
+            $user = auth()->user();
+            // start transaction
+            DB::beginTransaction();
+
+            $customer = Customer::where("id_user", $user->id)->first();  
+            if(!isset($customer))
+                return  $this->sendResponse(null, "Client non trouvée", "Customer not found", 400);
+
+            $provider = ProviderService::where("id_user", $request->id_provider)->first();
+            if(!isset($provider))
+                return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found", 400);
+
+            $advert = Advert::where("id", $request->id_advert)->first();
+            if(!isset($advert))
+                return  $this->sendResponse(null, "Annonce non trouvée", "Advert not found", 400);
+    
+            $advertResponse = AdvertResponse::where(["id_advert" => $request->id_advert, "id_provider_service" => $request->id_provider])->first(); 
+            if(!isset($advertResponse))
+                return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", "AdvertResponse not found", 400);
+
+            if($advert->taken)
+                return  $this->sendResponse(null, "Vous avez déjà choisi un prestataire, veuillez annulée la livraison pour pouvoir choisir un autre prestataire", "You have already chosen a providerService, please cancel the delivery to be able to choose another providerService", 400);
+                  
+            $advert->taken = true;
+            $advert->acceptance_date = Carbon::now();
+
+            $advertResponse->taken = true;
+            $advertResponse->acceptance_date = Carbon::now();
+            
+            $advert->save();
+            $advertResponse->save();
+            
+            $msg = "Prestataire choisi avec succès";
+            $debugMsg = "Successfully chosen providerService!";
+
+            // commit transaction
+            DB::commit();
+
+            return  $this->sendResponse(null, $msg, $debugMsg); 
+        } catch (\Throwable $th) {
+            DB::rollback();
+            //throw $th;
+            return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
+        } 
+    }
 
     /**
      * Display the specified resource.

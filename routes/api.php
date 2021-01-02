@@ -30,13 +30,15 @@ Route::group(['middleware' => 'auth:api'], function() {
     Route::get('get-profile',  [UserController::class, 'show']);
     Route::post('update-profile',  [UserController::class, 'update']); 
 
-    Route::post('create-advert',[AdvertController::class, 'create']);
+    Route::post('create-advert', [AdvertController::class, 'create']);
+    Route::post('update-advert', [AdvertController::class, 'update']);
+    Route::post('apply-on-advert', [AdvertController::class, 'applyOnAdvert']);
+    Route::get('adverts/{id}', [AdvertController::class, 'advertById']);
+    Route::get('adverts', [AdvertController::class, 'allAdvert']);
+    Route::get('adverts-by-provider', [AdvertController::class, 'advertsByProvider']);
+    Route::get('providers-by-advert/{id}', [AdvertController::class, 'providersByAdvert']);
 
-    Route::post('update-advert',[AdvertController::class, 'update']);
-    Route::post('apply-on-advert',[AdvertController::class, 'applyOnAdvert']);
-    Route::get('adverts/{id}',[AdvertController::class, 'advertById']);
-    Route::get('adverts',[AdvertController::class, 'allAdvert']);
-    Route::get('adverts-by-provider',[AdvertController::class, 'advertsByProvider']);
+    Route::post('choose-this-provider', [AdvertController::class, 'chooseThisProvider']);
 });
 
 
