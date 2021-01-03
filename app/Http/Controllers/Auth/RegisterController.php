@@ -86,7 +86,7 @@ class RegisterController extends Controller
  
             $userData['password'] = bcrypt($request->password); 
 
-            $userData['auth'] = isset($request->auth) ? $request->auth : ''; 
+            $userData['auth'] = $request->has('auth') && isset($request->auth) ? $request->auth : ''; 
             $authOtp = AuthOtp::where(['auth' => $userData['auth'], 'status' => Constants::STATUS_OTP_CONSUMED])->first();
 
             if (isset($authOtp) && $authOtp->phone == $userData['phone']){ 
