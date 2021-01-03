@@ -8,16 +8,16 @@ namespace App\Helpers;
 class Constants
 {
     const MAIL_SEPARATOR=";";
-	 const STATUS_DISABLE=0;
-	 const STATUS_ENABLE=1; 
-	 const TYPE_AUTOMATIC="AUTOMATIC";
-	 const TYPE_MANUAL="MANUAL";
+	 const STATUS_DISABLE = 0;
+	 const STATUS_ENABLE = 1; 
+	 const TYPE_AUTOMATIC = "AUTOMATIC";
+	 const TYPE_MANUAL = "MANUAL";
 	
 	
 	
-	 const STEP_PAGINATE=25;
-	 const NO_PAGINATE=-1;
-	 const DEFAULT_PAGE=1;
+	 const STEP_PAGINATE = 25;
+	 const NO_PAGINATE = -1;
+	 const DEFAULT_PAGE = 1;
 	
 	 // Client ID: 3
 	 // Client Secret: ppvTSfzG52P4uOXYlwvtYdqaf5iVvT1fNe9daXtM

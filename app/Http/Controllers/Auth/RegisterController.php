@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\Constants;
@@ -84,10 +85,21 @@ class RegisterController extends Controller
                 $userData['profile_photo_path']  = $request->file('profile_photo_path')->store('profile');
  
             $userData['password'] = bcrypt($request->password); 
+            
+            $authOtp = AuthOtp::where(['auth' => $userData['auth'], 'status' => Constants::STATUS_OTP_CONSUMED])->first();
+
+            if (isset($authOtp) && $authOtp->phone == $userData['phone']){ 
+                $userData['is_phone_verify'] = true;
+                $userData['phone_verified_at'] = Carbon::now(); 
+            }
+
+            $warning = "";
+            if(isset($authOtp) && $authOtp->phone != $userData['phone'])
+                $warning = "\n Attention: Le numéro de téléphone utilisé pour l'inscription est différent du numéro vérifié!";
  
             $user = User::create($userData);
 
-         /*   //if(isset($request->id_user_type) && $request->id_user_type == 1)
+            /*   //if(isset($request->id_user_type) && $request->id_user_type == 1)
                 
             if(isset($request->id_user_type) && $request->id_user_type == 2)
                 Customer::create([
@@ -100,7 +112,7 @@ class RegisterController extends Controller
                     "id_user" => $user->id,
                     "avis" => "RAS",
                 ]); 
-*/
+            */
 
 
                 $type_user = $user->id_user_type;
@@ -130,7 +142,7 @@ class RegisterController extends Controller
                  
             // commit transaction
             DB::commit();
-            $msg = "Souscription effectué avec succés.";
+            $msg = "Souscription effectué avec succés. $warning";
             return  $this->sendResponse(null, $msg, "Subscription successfully completed");
 
         } catch (\Throwable $th) {
