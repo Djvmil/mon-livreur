@@ -48,6 +48,10 @@ class AdvertController extends Controller
     {
         try {
             $user = auth()->user();
+
+            if($user->id_user_type != Constants::USER_TYPE_CLIENT)
+                return  $this->sendResponse(null, "Votre profil ne vous permet pas de creer une annonce.", "Your profile does not allow you to create an advert.",400);
+ 
             $customer = Customer::where("id_user", $user->id)->first();
             
             $validateData = Validator::make($request->all(), [
@@ -190,7 +194,6 @@ class AdvertController extends Controller
     {
         try {
             $user = auth()->user();
-             
             $provider = ProviderService::where("id_user", $user->id)->first();
             if(!isset($provider)) 
                 return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found"); 
@@ -411,7 +414,7 @@ class AdvertController extends Controller
                 return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found", 400);
                 
             $provider = ProviderService::where("id_user", $user->id)->first();  
- /*
+            /*
             $queryAdverts = "SELECT Distinct(adverts.id), users.id AS id_user, adverts.name, adverts.description, adverts.departure_city, adverts.arrival_city, 
                                     adverts.acceptance_date, adverts.departure_date, users.firstname, users.lastname, users.profile_photo_path,
                                     (CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify,
@@ -465,6 +468,46 @@ class AdvertController extends Controller
         } 
     }
  
+
+    /**
+     * Prestataire: Tous les annonces en cours d'un client.
+     *
+     */
+    public function advertsWithProviderStatus(Request $request)
+    {
+        try {
+            $user = auth()->user();
+            $customer = Customer::where("id_user", $user->id)->first();
+            if(!isset($customer)) 
+                return  $this->sendResponse(null, "Client non trouvée", "Customer not found", 400);
+                
+            $allAdvert = Advert::where(["id_customer" => $customer->id, "taken" => true, ["state", '!=', Constants::DELIVERED_STATE]])
+            ->select('id', 'departure_city', 'arrival_city', 'name', 'state', 'taken', 'description', 
+                        'nature_package', 'departure_date', 'acceptance_date', 'created_at', 'updated_at') 
+            ->with(["advertResponse" => function($query) { 
+                        $query->where('taken', true)->select('id', 'comment', 'taken', 'price', 'acceptance_date', 'id_advert', 'id_provider_service');
+                    },
+                    "advertResponse.provider" => function($query) { 
+                        $query->select('provider_services.id', 'id_user', 'avis', 'firstname', 'firstname', 'lastname', 'profile_photo_path', 'email', 'phone', 
+                        DB::raw("(CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify"),
+                        DB::raw("(CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify"),
+                        DB::raw("(CASE WHEN users.is_identity_verify = 0 THEN 'false' ELSE 'true' END) AS is_identity_verify"), 'email', 'users.created_at AS user_registration_date')->join('users', 'users.id', '=', 'id_user');
+                    }])->get();  
+  
+            if(isset($allAdvert) && count($allAdvert) > 0){
+                $msg = "Tous les annonces";
+                $debugMsg = "All advertisements";
+            }else{
+                $msg = "Il n'y a pas d'annonce disponible";
+                $debugMsg = "There is no advert available!";
+            }
+
+            return  $this->sendResponse($allAdvert, $msg, $debugMsg); 
+        } catch (\Throwable $th) {
+            //throw $th;
+            return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
+        } 
+    }
 
     /**
      * Client: Tous les prestataire qui ont postuler dans une annonces.

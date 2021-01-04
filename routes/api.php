@@ -41,6 +41,9 @@ Route::group(['middleware' => 'auth:api'], function() {
     Route::get('adverts-by-provider', [AdvertController::class, 'advertsByProvider']);
     Route::get('providers-by-advert/{id}', [AdvertController::class, 'providersByAdvert']);
     Route::post('choose-this-provider', [AdvertController::class, 'chooseThisProvider']);
+
+
+    Route::get('adverts-with-providers-status', [AdvertController::class, 'advertsWithProviderStatus']);
 });
 
 

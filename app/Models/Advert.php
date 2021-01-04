@@ -62,6 +62,12 @@ class Advert extends Model
     {
         return $this->belongsTo(\App\Models\Customer::class, 'id_customer');
     }
+ 
+
+    public function advertResponse()
+    {
+        return $this->hasMany(\App\Models\AdvertResponse::class, 'id_advert');
+    }
 
 }
 
