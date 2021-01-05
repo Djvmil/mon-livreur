@@ -376,8 +376,8 @@ class AdvertController extends Controller
   
             if($request->has("state") && isset($request->state)) {
                 $updateData["state"] = $advert->state; 
-                if($request->state == Constants::DELETED_STATE)
-                    $updateData["state"] = Constants::DELETED_STATE; 
+                if($request->state == StateAdvert::DELETED)
+                    $updateData["state"] = StateAdvert::map()[StateAdvert::DELETED]; 
             }
                  
 
@@ -387,7 +387,7 @@ class AdvertController extends Controller
             if($res == 0 && $providerOrProvider->id != $advert->id_customer) 
                 return  $this->sendResponse(null, "Vous ne pouvez modifier que les annonces que vous avez publié", "You can only edit the adverts you posted", 400);
  
-            if($advert->state == Constants::DELETED_STATE){
+            if($advert->state == StateAdvert::map()[StateAdvert::DELETED]){
                 $advert->delete();
                 return  $this->sendResponse(null, "Annonce supprimée avec succès", "Advert deleted"); 
             }
@@ -427,12 +427,11 @@ class AdvertController extends Controller
             if(!isset($advert)) 
                 return  $this->sendResponse(null, "Annonce non trouvée", "Advert not found", 400);
 
+            //return  $this->sendResponse(StateAdvert::map()[1]);
+            //return  $this->sendResponse(StateAdvert::map());
+            //return  $this->sendResponse(StateAdvert::DELIVERED);
 
-                //return  $this->sendResponse(StateAdvert::map()[1]);
-                //return  $this->sendResponse(StateAdvert::map());
-                //return  $this->sendResponse(StateAdvert::DELIVERED);
-
-            $advert = $advert->where('state', '!=', Constants::DELIVERED_STATE)->first();
+            $advert = $advert->where('state', '!=', StateAdvert::map()[StateAdvert::DELIVERED])->first();
             if(!isset($advert)) 
                 return  $this->sendResponse(null, "Annonce déjà livrée", "Announcement already delivered", 400);
   
@@ -440,7 +439,7 @@ class AdvertController extends Controller
             if(!isset($advertResponse)) 
                 return  $this->sendResponse(null, "Vous n'êtes pas autorisé à changer l'étape de cette annonce", "You are not allowed to change the stage of this announcement", 400);
  
-            $advert->state = $request->state;
+            $advert->state = StateAdvert::map()[$request->state];
             $advert->save();
  
             $msg = "Étape changée avec succès";
@@ -493,9 +492,9 @@ class AdvertController extends Controller
                                 (CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify,
                                 (CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify,
                                 (CASE WHEN users.is_identity_verify = 0 THEN 'false' ELSE 'true' END) AS is_identity_verify, adverts.state,
-                                (CASE WHEN adverts.taken = 1 AND (SELECT taken FROM advert_responses WHERE id_provider_service = '".$provider->id."' AND  id_advert = adverts.id) = 1 THEN '".Constants::ACCEPTED_STATUS."' 
-                                      WHEN adverts.taken = 1 AND (SELECT taken FROM advert_responses WHERE id_provider_service = '".$provider->id."' AND  id_advert = adverts.id) = 0 THEN '".Constants::REFUSED_STATUS."' 
-                                       ELSE '".Constants::WAITING_STATUS."' END) AS status ,
+                                (CASE WHEN adverts.taken = 1 AND (SELECT taken FROM advert_responses WHERE id_provider_service = '".$provider->id."' AND  id_advert = adverts.id) = 1 THEN '".StateAdvert::map()[StateAdvert::ACCEPTED]."' 
+                                      WHEN adverts.taken = 1 AND (SELECT taken FROM advert_responses WHERE id_provider_service = '".$provider->id."' AND  id_advert = adverts.id) = 0 THEN '".StateAdvert::map()[StateAdvert::REFUSED]."' 
+                                       ELSE '".StateAdvert::map()[StateAdvert::WAITING]."' END) AS status ,
                                 users.created_at AS user_registration_date,
                                 (CASE WHEN adverts.taken = 0 THEN 'false' ELSE 'true' END) AS taken, adverts.price, adverts.nature_package, 
                                 (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id) AS provider_response_count, adverts.created_at, adverts.updated_at 
@@ -535,7 +534,7 @@ class AdvertController extends Controller
             if(!isset($customer)) 
                 return  $this->sendResponse(null, "Client non trouvée", "Customer not found", 400);
                 
-            $allAdvert = Advert::where(["id_customer" => $customer->id, "taken" => true, ["state", '!=', Constants::DELIVERED_STATE]])
+            $allAdvert = Advert::where(["id_customer" => $customer->id, "taken" => true, ["state", '!=', StateAdvert::map()[StateAdvert::DELIVERED]]])
             ->select('id', 'departure_city', 'arrival_city', 'name', 'state', 'taken', 'description', 
                         'nature_package', 'departure_date', 'acceptance_date', 'created_at', 'updated_at') 
             ->with(["advertResponse" => function($query) { 
@@ -627,7 +626,7 @@ class AdvertController extends Controller
                 return  $this->sendResponse(null, "Vous avez déjà choisi un prestataire, veuillez annulée la livraison pour pouvoir choisir un autre prestataire", "You have already chosen a providerService, please cancel the delivery to be able to choose another providerService", 400);
                   
             $advert->taken = true;
-            $advert->state = Constants::TAKEN_STATE;
+            $advert->state = StateAdvert::map()[StateAdvert::TAKEN];
             $advert->acceptance_date = Carbon::now();
 
             $advertResponse->taken = true;
