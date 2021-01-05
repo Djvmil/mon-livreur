@@ -129,9 +129,17 @@ class AdvertController extends Controller
                                     WHERE id_customer = '".$customer->id."' 
                                     AND deleted_at is null ";
 
+                if($request->has('state') && isset($request->state) && !is_numeric($request->state)) 
+                    return  $this->sendResponse(null, "Le state doit être un entier", "State must be an integer"); 
+
+                if($request->has('state') && isset($request->state) && is_numeric($request->state) && ($request->state < 1 || $request->state > 10)) 
+                    return  $this->sendResponse(null, "Le state doit être entre 1 et 10", "The internship must be between 1 and 10"); 
+
+                if($request->has('state') && isset($request->state))
+                    $queryAdverts = $queryAdverts . " AND adverts.state = '".StateAdvert::map()[$request->state]."' ";
+ 
                 $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
-
-
+ 
                 if(isset($resultAdverts) && count($resultAdverts) > 0){
                     $msg = "Tous les annonces";
                     $debugMsg = "All advertisements";
@@ -163,6 +171,15 @@ class AdvertController extends Controller
                                     AND customers.id_user = users.id 
                                     AND adverts.taken is false  
                                     AND adverts.deleted_at IS NULL";
+              
+                if($request->has('state') && isset($request->state) && !is_numeric($request->state)) 
+                    return  $this->sendResponse(null, "Le state doit être un entier", "State must be an integer"); 
+
+                if($request->has('state') && isset($request->state) && is_numeric($request->state) && ($request->state < 1 || $request->state > 10)) 
+                    return  $this->sendResponse(null, "Le state doit être entre 1 et 10", "The internship must be between 1 and 10"); 
+
+                if($request->has('state') && isset($request->state))
+                    $queryAdverts = $queryAdverts . " AND adverts.state = '".StateAdvert::map()[$request->state]."' ";
 
                 $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
 
@@ -219,6 +236,15 @@ class AdvertController extends Controller
                                             FROM advert_responses 
                                             WHERE advert_responses.id_provider_service = '".$provider->id."' 
                                             AND advert_responses.id_advert = adverts.id )";
+
+            if($request->has('state') && isset($request->state) && !is_numeric($request->state)) 
+                return  $this->sendResponse(null, "Le state doit être un entier", "State must be an integer"); 
+
+            if($request->has('state') && isset($request->state) && is_numeric($request->state) && ($request->state < 1 || $request->state > 10)) 
+                return  $this->sendResponse(null, "Le state doit être entre 1 et 10", "The internship must be between 1 and 10"); 
+
+            if($request->has('state') && isset($request->state))
+                $queryAdverts = $queryAdverts . " AND adverts.state = '".StateAdvert::map()[$request->state]."' ";
 
             $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
 
@@ -504,6 +530,16 @@ class AdvertController extends Controller
                             AND adverts.deleted_at IS NULL
                             AND adverts.id IN (SELECT id_advert FROM advert_responses WHERE advert_responses.id_provider_service = '".$provider->id."' AND  id_advert = adverts.id)";
                             
+            if($request->has('state') && isset($request->state) && !is_numeric($request->state)) 
+                return  $this->sendResponse(null, "Le state doit être un entier", "State must be an integer"); 
+
+            if($request->has('state') && isset($request->state) && is_numeric($request->state) && ($request->state < 1 || $request->state > 10)) 
+                return  $this->sendResponse(null, "Le state doit être entre 1 et 10", "The internship must be between 1 and 10"); 
+
+
+            if($request->has('state') && isset($request->state))
+                $queryAdverts = $queryAdverts . " AND adverts.state = '".StateAdvert::map()[$request->state]."' ";
+
             $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
             
             if(isset($resultAdverts) && count($resultAdverts) > 0){
@@ -536,17 +572,31 @@ class AdvertController extends Controller
                 
             $allAdvert = Advert::where(["id_customer" => $customer->id, "taken" => true, ["state", '!=', StateAdvert::map()[StateAdvert::DELIVERED]]])
             ->select('id', 'departure_city', 'arrival_city', 'name', 'state', 'taken', 'description', 
-                        'nature_package', 'departure_date', 'acceptance_date', 'created_at', 'updated_at') 
+                        'nature_package', 'departure_date', 'acceptance_date', 'created_at', 'updated_at')
             ->with(["advertResponse" => function($query) { 
                         $query->where('taken', true)->select('id', 'comment', 'taken', 'price', 'acceptance_date', 'id_advert', 'id_provider_service');
                     },
                     "advertResponse.provider" => function($query) { 
                         $query->select('provider_services.id', 'id_user', 'avis', 'firstname', 'firstname', 'lastname', 'profile_photo_path', 'email', 'phone', 
-                        DB::raw("(CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify"),
-                        DB::raw("(CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify"),
-                        DB::raw("(CASE WHEN users.is_identity_verify = 0 THEN 'false' ELSE 'true' END) AS is_identity_verify"), 'email', 'users.created_at AS user_registration_date')->join('users', 'users.id', '=', 'id_user');
-                    }])->get();  
-  
+                                    DB::raw("(CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify"),
+                                    DB::raw("(CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify"),
+                                    DB::raw("(CASE WHEN users.is_identity_verify = 0 THEN 'false' ELSE 'true' END) AS is_identity_verify"), 'email', 'users.created_at AS user_registration_date')
+                                ->join('users', 'users.id', '=', 'id_user');
+                    }]);  
+
+       
+            if($request->has('state') && isset($request->state) && !is_numeric($request->state)) 
+                return  $this->sendResponse(null, "Le state doit être un entier", "State must be an integer"); 
+
+            if($request->has('state') && isset($request->state) && is_numeric($request->state) && ($request->state < 1 || $request->state > 10)) 
+                return  $this->sendResponse(null, "Le state doit être entre 1 et 10", "The internship must be between 1 and 10"); 
+
+
+            if($request->has('state') && isset($request->state))
+                $allAdvert = $allAdvert->where("state", StateAdvert::map()[$request->state])->get();
+            else
+                $allAdvert = $allAdvert->get();
+
             if(isset($allAdvert) && count($allAdvert) > 0){
                 $msg = "Tous les annonces";
                 $debugMsg = "All advertisements";
