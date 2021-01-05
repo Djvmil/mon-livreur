@@ -48,7 +48,6 @@ class AdvertController extends Controller
     {
         try {
             $user = auth()->user();
-
             if($user->id_user_type != Constants::USER_TYPE_CLIENT)
                 return  $this->sendResponse(null, "Votre profil ne vous permet pas de creer une annonce.", "Your profile does not allow you to create an advert.",400);
  
@@ -374,11 +373,12 @@ class AdvertController extends Controller
             
             $updateData = request()->all(); 
   
-            if($request->has("state") && !isset($request->state)) 
+            if($request->has("state") && isset($request->state)) {
                 $updateData["state"] = $advert->state; 
-
-            if($request->has("state") && isset($request->state) && $request->state == Constants::TAKEN_STATE) 
-                $updateData["taken"] = true;    
+                if($request->state == Constants::DELETED_STATE)
+                    $updateData["state"] = Constants::DELETED_STATE; 
+            }
+                 
 
             $res = Advert::where(["id" => $request->id, "id_customer" => $providerOrProvider->id])->update($updateData); 
             $advert = Advert::find($request->id);
@@ -397,6 +397,55 @@ class AdvertController extends Controller
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
 
         }
+    }
+
+
+    /**
+     * Prestataire: Tous les annonces en cours d'un client.
+     *
+     */
+    public function changeStateAdvert(Request $request)
+    {
+        try {
+            $user = auth()->user();
+            $provider = ProviderService::where("id_user", $user->id)->first();
+
+            if(!isset($provider)) 
+                return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found", 400);
+                
+            
+            $validateData = Validator::make($request->all(), [
+                'id_advert'=>'required',
+                'state'=>'required'
+            ]);
+    
+            if($validateData->fails())
+                return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
+
+
+            $advert = Advert::where("id", $request->id_advert)->first();
+            if(!isset($advert)) 
+                return  $this->sendResponse(null, "Annonce non trouvée", "Advert not found", 400);
+
+            $advert = $advert->where('state', '!=', Constants::DELIVERED_STATE)->first();
+            if(!isset($advert)) 
+                return  $this->sendResponse(null, "Annonce déjà livrée", "Announcement already delivered", 400);
+  
+            $advertResponse = AdvertResponse::where(["id_advert" => $request->id_advert, "id_provider_service" => $provider->id, "taken" => true])->first();
+            if(!isset($advertResponse)) 
+                return  $this->sendResponse(null, "Vous n'êtes pas autorisé à changer l'étape de cette annonce", "You are not allowed to change the stage of this announcement", 400);
+ 
+            $advert->state = $request->state;
+            $advert->save();
+ 
+            $msg = "Étape changée avec succès";
+            $debugMsg = "Step changed successfully";
+
+            return  $this->sendResponse(null, $msg, $debugMsg); 
+        } catch (\Throwable $th) {
+            //throw $th;
+            return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
+        } 
     }
 
 
@@ -508,6 +557,8 @@ class AdvertController extends Controller
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
         } 
     }
+
+    
 
     /**
      * Client: Tous les prestataire qui ont postuler dans une annonces.

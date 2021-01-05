@@ -44,6 +44,7 @@ Route::group(['middleware' => 'auth:api'], function() {
 
 
     Route::get('adverts-with-providers-status', [AdvertController::class, 'advertsWithProviderStatus']);
+    Route::post('change-state-advert', [AdvertController::class, 'changeStateAdvert']);
 });
 
 
