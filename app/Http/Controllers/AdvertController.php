@@ -10,6 +10,7 @@ use App\Models\ProviderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\Constants;
+use App\Enums\StateAdvert;
 use App\Http\Service\SendSms;
 use Illuminate\Support\Str; 
 use Carbon\Carbon;
@@ -422,10 +423,14 @@ class AdvertController extends Controller
             if($validateData->fails())
                 return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
 
-
             $advert = Advert::where("id", $request->id_advert)->first();
             if(!isset($advert)) 
                 return  $this->sendResponse(null, "Annonce non trouvée", "Advert not found", 400);
+
+
+                //return  $this->sendResponse(StateAdvert::map()[1]);
+                //return  $this->sendResponse(StateAdvert::map());
+                //return  $this->sendResponse(StateAdvert::DELIVERED);
 
             $advert = $advert->where('state', '!=', Constants::DELIVERED_STATE)->first();
             if(!isset($advert)) 

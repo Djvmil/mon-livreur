@@ -18,8 +18,7 @@
         "laravel/passport": "^10.0",
         "laravel/sanctum": "^2.8",
         "laravel/socialite": "^5.1",
-        "laravel/tinker": "^2.5",
-        "mad-web/laravel-enum": "^2.2",
+        "laravel/tinker": "^2.5", 
         "nexmo/client": "^2.4"
     },
     "require-dev": {
