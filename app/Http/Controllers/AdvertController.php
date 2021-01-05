@@ -591,7 +591,6 @@ class AdvertController extends Controller
             if($request->has('state') && isset($request->state) && is_numeric($request->state) && ($request->state < 1 || $request->state > 10)) 
                 return  $this->sendResponse(null, "Le state doit être entre 1 et 10", "The internship must be between 1 and 10"); 
 
-
             if($request->has('state') && isset($request->state))
                 $allAdvert = $allAdvert->where("state", StateAdvert::map()[$request->state])->get();
             else
@@ -677,6 +676,7 @@ class AdvertController extends Controller
                   
             $advert->taken = true;
             $advert->state = StateAdvert::map()[StateAdvert::TAKEN];
+            $advert->price = $advertResponse->price;
             $advert->acceptance_date = Carbon::now();
 
             $advertResponse->taken = true;
