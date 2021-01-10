@@ -2,21 +2,26 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-/** 
-* @property \Carbon\Carbon $created_at
-* @property \Carbon\Carbon $updated_at
-* @property string $deleted_at
-*/
-class Admin extends Authenticatable
+/**
+ * Class Admin
+ *
+ * @property int $id
+ * @property int $id_user
+ * @property string $avis
+ *
+ * @property \App\Models\User $user
+ * *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property string $deleted_at 
+ * @package App\Models
+ */
+class Admin extends Eloquent
 {
-    use HasFactory, Notifiable, HasApiTokens;
-
+	use SoftDeletes;
     /**
      * The database table used by the model.
      *
@@ -24,32 +29,25 @@ class Admin extends Authenticatable
      */
     protected $table = 'admins';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'email',
-        'password',
-    ];
+    
+	protected $casts = [
+		'id_user' => 'int',
+        'idcustomer'=>'int'
+	];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+	protected $fillable = [
+		'id_user',
+		'avis'
+	];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+	public function user()
+	{
+		return $this->belongsTo(\App\Models\User::class, 'id_user');
+	}
+
+    public function annonce()
+    {
+        return $this->hasMany(\App\Models\Annonce::class, 'idcustomer');
+    }
+
 }

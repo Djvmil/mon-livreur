@@ -25,7 +25,7 @@ Route::post('login',  [LoginController::class, 'login']);
 Route::post('check',  [UserController::class, 'check']);
 Route::post('otp-confirmation', [UserController::class, 'otpConfirmation']);
 
-Route::group(['middleware' => 'auth:api'], function() {
+Route::group(['middleware' => 'auth:sanctum'], function() {
     //Auth
     Route::post('logout',  [LoginController::class, 'logout']);
     Route::get('get-profile',  [UserController::class, 'show']);

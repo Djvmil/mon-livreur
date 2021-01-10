@@ -79,10 +79,16 @@ class RegisterController extends Controller
 
             $userData = request()->all();
             if(isset($request->identity_value))
-                $userData['identity_value']  = $request->file('identity_value')->store('identity');
+                $userData['identity_value'] = $request->file('identity_value')->store('identity');
+
+            if(isset($request->firstname))
+                $userData['name'] = $request->firstname.' ';
+           
+            if(isset($request->lastname))
+                $userData['name'] = $userData['name'].$request->lastname;
 
             if(isset($request->profile_photo_path))
-                $userData['profile_photo_path']  = $request->file('profile_photo_path')->store('profile');
+                $userData['profile_photo_path'] = $request->file('profile_photo_path')->store('profile');
  
             $userData['password'] = bcrypt($request->password); 
 
@@ -117,8 +123,7 @@ class RegisterController extends Controller
 
 
                 $type_user = $user->id_user_type;
-                if($user && $type_user == Constants::USER_TYPE_CLIENT ) {
-                    //$iduser=$client->get('id');
+                if($user && $type_user == Constants::USER_TYPE_CLIENT ) { 
                     $datacustomer = new Customer();
                     $datacustomer->id_user = $user->id;
                     $datacustomer->avis = $request->get('avis', 'RAS');
