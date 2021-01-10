@@ -144,7 +144,7 @@ class RegisterController extends Controller
             else{
                 return  $this->sendResponse(null, 'ce type d\'utilisateur n\'existe pas', 'ce type d\'utilisateur n\'existe pas', 400);
                 
-            } 
+            }
                  
             // commit transaction
             DB::commit();
@@ -157,6 +157,5 @@ class RegisterController extends Controller
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
         }
    }
-
 
 }
