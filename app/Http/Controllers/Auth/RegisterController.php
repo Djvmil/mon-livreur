@@ -122,29 +122,29 @@ class RegisterController extends Controller
             */
 
 
-                $type_user = $user->id_user_type;
-                if($user && $type_user == Constants::USER_TYPE_CLIENT ) { 
-                    $datacustomer = new Customer();
-                    $datacustomer->id_user = $user->id;
-                    $datacustomer->avis = $request->get('avis', 'RAS');
-                    $datacustomer->save();
-                }
-                elseif($user && $type_user == Constants::USER_TYPE_PRESTATAIRE){
-                    $dataprovider = new ProviderService();
-                    $dataprovider->id_user = $user->id;
-                    $dataprovider->avis = $request->get('avis', 'RAS');
-                    $dataprovider->save();
-                }
-                elseif($user && $type_user == Constants::USER_TYPE_ADMIN){
-                    $dataadmin = new Admin();
-                    $dataadmin->id_user = $user->id;
-                    $dataadmin->avis = $request->get('avis', 'RAS');
-                    $dataadmin->save();
-                }
-                else{
-                    return  $this->sendResponse(null, 'ce type d\'utilisateur n\'existe pas', 'ce type d\'utilisateur n\'existe pas', 400);
-                  
-                } 
+            $type_user = $user->id_user_type;
+            if($user && $type_user == Constants::USER_TYPE_CLIENT ) { 
+                $datacustomer = new Customer();
+                $datacustomer->id_user = $user->id;
+                $datacustomer->avis = $request->get('avis', 'RAS');
+                $datacustomer->save();
+            }
+            elseif($user && $type_user == Constants::USER_TYPE_PRESTATAIRE){
+                $dataprovider = new ProviderService();
+                $dataprovider->id_user = $user->id;
+                $dataprovider->avis = $request->get('avis', 'RAS');
+                $dataprovider->save();
+            }
+            elseif($user && $type_user == Constants::USER_TYPE_ADMIN){
+                $dataadmin = new Admin();
+                $dataadmin->id_user = $user->id;
+                $dataadmin->avis = $request->get('avis', 'RAS');
+                $dataadmin->save();
+            }
+            else{
+                return  $this->sendResponse(null, 'ce type d\'utilisateur n\'existe pas', 'ce type d\'utilisateur n\'existe pas', 400);
+                
+            } 
                  
             // commit transaction
             DB::commit();
