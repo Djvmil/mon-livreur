@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use App\Helpers\Constants;
+use App\Enums\StateAdvert;
 
 class CreateAdvertTable extends Migration
 {
@@ -19,7 +20,7 @@ class CreateAdvertTable extends Migration
             $table->string('departure_city', 100);
             $table->string('arrival_city', 100);
             $table->string('name', 255)->nullabe();
-            $table->string('state', 100)->default(Constants::WAITING_FOR_TAKE_STATE);
+            $table->string('state', 100)->default(StateAdvert::map()[1]);
             $table->boolean('taken')->default(false);
             $table->text('description', 65535)->nullabe();
             $table->decimal('price')->default(0); 

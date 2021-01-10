@@ -56,7 +56,7 @@ class AdvertResponse extends Model
         return $this->belongsTo(\App\Models\Advert::class, 'id_advert');
     }
   
-    public function provider_service()
+    public function provider()
     {
         return $this->belongsTo(\App\Models\ProviderService::class, 'id_provider_service');
     }

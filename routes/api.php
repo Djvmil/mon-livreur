@@ -26,16 +26,25 @@ Route::post('check',  [UserController::class, 'check']);
 Route::post('otp-confirmation', [UserController::class, 'otpConfirmation']);
 
 Route::group(['middleware' => 'auth:api'], function() {
+    //Auth
     Route::post('logout',  [LoginController::class, 'logout']);
     Route::get('get-profile',  [UserController::class, 'show']);
     Route::post('update-profile',  [UserController::class, 'update']); 
 
-    Route::post('create-advert',[AdvertController::class, 'create']);
+    //Advert
+    Route::post('create-advert', [AdvertController::class, 'create']);
+    Route::post('update-advert', [AdvertController::class, 'update']);
+    Route::post('apply-on-advert', [AdvertController::class, 'applyOnAdvert']);
+    Route::get('adverts/{id}', [AdvertController::class, 'advertById']);
+    Route::get('adverts', [AdvertController::class, 'adverts']);
+    Route::get('adverts-except-postulated', [AdvertController::class, 'advertsExceptPostulated']);
+    Route::get('adverts-by-provider', [AdvertController::class, 'advertsByProvider']);
+    Route::get('providers-by-advert/{id}', [AdvertController::class, 'providersByAdvert']);
+    Route::post('choose-this-provider', [AdvertController::class, 'chooseThisProvider']);
 
-    Route::post('update-advert',[AdvertController::class, 'update']);
-    Route::post('apply-on-advert',[AdvertController::class, 'applyOnAdvert']);
-    Route::get('adverts/{id}',[AdvertController::class, 'advertById']);
-    Route::get('adverts',[AdvertController::class, 'allAdvert']);
+
+    Route::get('adverts-with-providers-status', [AdvertController::class, 'advertsWithProviderStatus']);
+    Route::post('change-state-advert', [AdvertController::class, 'changeStateAdvert']);
 });
 
 
