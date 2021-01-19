@@ -37,39 +37,66 @@ class Handler extends ExceptionHandler
         //
     }
 
+
+    /**
+     * Report or log an exception.
+     *
+     * @param Throwable  $exception
+     * @return void
+     */
+    public function report(Throwable $exception)
+    {
+        parent::report($exception);
+    }
+
     public function render($request, Throwable $exception){
-        try {
-            if ($exception instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException)
-                return response()->json ([ 
-                    'userMessage' => "Not Found",
-                    'debugMessage' => "Not Found",
-                    'data' 	  => null
-                ], 404);
-            elseif ($exception instanceof \Illuminate\Auth\AuthenticationException )
-                return response()->json ([ 
-                    'userMessage' => "Unauthorized",
-                    'debugMessage' => "Unauthorized",
-                    'data' 	  => null
-                ], 401 );
-            elseif ($this->isHttpException($exception))
-                return response()->json ([ 
-                    'userMessage' => "Unknown error",
-                    'debugMessage' => $exception->getMessage(),
-                    'data' 	  => null
-                ], 422 );
-            else
+
+        //$requestUri = substr(request()->path(), 0, 4);
+        if(substr_compare(request()->path(), "api/", 0, 4, TRUE) == 0){
+            try {
+                if ($exception instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException)
+                    return response()->json ([ 
+                        'userMessage' => "Not Found",
+                        'debugMessage' => "Not Found",
+                        'data' 	  => null
+                    ], 404);
+                elseif ($exception instanceof \Illuminate\Auth\AuthenticationException )
+                    return response()->json ([ 
+                        'userMessage' => "Unauthorized",
+                        'debugMessage' => "Unauthorized",
+                        'data' 	  => null
+                    ], 401 );
+                elseif ($this->isHttpException($exception))
+                    return response()->json ([ 
+                        'userMessage' => "Unknown error",
+                        'debugMessage' => $exception->getMessage(),
+                        'data' 	  => null
+                    ], 422 );
+                else
+                    return response()->json ([ 
+                        'userMessage' => "Internal server error",
+                        'debugMessage' => $exception->getMessage(),
+                        'data' 	  => null
+                    ], 500 );
+                    
+            } catch (\Throwable $th) {
                 return response()->json ([ 
                     'userMessage' => "Internal server error",
-                    'debugMessage' => $exception->getMessage(),
+                    'debugMessage' => $th->getMessage(),
                     'data' 	  => null
                 ], 500 );
-                
-        } catch (\Throwable $th) {
-            return response()->json ([ 
-                'userMessage' => "Internal server error",
-                'debugMessage' => $th->getMessage(),
-                'data' 	  => null
-            ], 500 );
+            }
+        }else{
+            
+            if ($this->isHttpException($exception)) {
+                if ($exception->getStatusCode() == 404) {
+                    return response()->view('404/404', [], 404);
+                }
+                if ($exception->getStatusCode() == 500) {
+                    return response()->view('404/404', [], 500);
+                }
+            }
+            return parent::render($request, $exception);
         }
     }
 }
