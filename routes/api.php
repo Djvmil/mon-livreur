@@ -38,6 +38,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::get('adverts/{id}', [AdvertController::class, 'advertById']);
     Route::get('adverts', [AdvertController::class, 'adverts']);
     Route::get('adverts-except-postulated', [AdvertController::class, 'advertsExceptPostulated']);
+    Route::get('adverts-postulated', [AdvertController::class, 'advertsPostulated']);
     Route::get('adverts-by-provider', [AdvertController::class, 'advertsByProvider']);
     Route::get('providers-by-advert/{id}', [AdvertController::class, 'providersByAdvert']);
     Route::post('choose-this-provider', [AdvertController::class, 'chooseThisProvider']);
