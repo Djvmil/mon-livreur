@@ -230,6 +230,7 @@ class AdvertController extends Controller
                                 WHERE adverts.id_customer = customers.id 
                                 AND customers.id_user = users.id 
                                 AND adverts.taken is false  
+                                AND adverts.state != 'Delivered'  
                                 AND adverts.deleted_at IS NULL
                                 AND adverts.id 
                                     NOT IN (SELECT advert_responses.id_advert 
@@ -243,8 +244,77 @@ class AdvertController extends Controller
             if($request->has('state') && isset($request->state) && is_numeric($request->state) && ($request->state < 1 || $request->state > 10)) 
                 return  $this->sendResponse(null, "Le state doit être entre 1 et 10", "The internship must be between 1 and 10"); 
 
+                
+
             if($request->has('state') && isset($request->state))
                 $queryAdverts = $queryAdverts . " AND adverts.state = '".StateAdvert::map()[$request->state]."' ";
+
+            $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
+
+
+            if(isset($resultAdverts) && count($resultAdverts) > 0){
+                $msg = "Tous les annonces";
+                $debugMsg = "All advertisements";
+            }else{
+                $msg = "Il n'y a pas d'annonce disponible";
+                $debugMsg = "There is no advert available!";
+            }
+
+            return  $this->sendResponse($resultAdverts, $msg, $debugMsg); 
+
+        } catch (\Throwable $th) {
+            //throw $th;
+            return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
+        } 
+    }
+
+    /**
+     * Prestataire: Tous les annonces avec comme status: POSTULED
+     * 
+     */
+    public function advertsPostulated(Request $request)
+    {
+        try {
+            $user = auth()->user();
+            $provider = ProviderService::where("id_user", $user->id)->first();
+            if(!isset($provider)) 
+                return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found"); 
+
+            $queryAdverts = "SELECT adverts.id, id_user, adverts.name, adverts.description, adverts.departure_city, adverts.arrival_city, adverts.state,
+                                        (CASE WHEN 
+                                            (SELECT id FROM advert_responses WHERE id_advert = adverts.id AND advert_responses.id_provider_service = '".$provider->id."') 
+                                            IS NOT NULL THEN 'POSTULED' ELSE 'NOT_POSTULED' END) AS status,
+                                    adverts.acceptance_date, adverts.departure_date, users.firstname, users.lastname, users.profile_photo_path,
+                                    (CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify,
+                                    (CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify,
+                                    (CASE WHEN users.is_identity_verify = 0 THEN 'false' ELSE 'true' END) AS is_identity_verify, 
+                                    users.created_at AS user_registration_date,
+                                    (CASE WHEN taken = 0 THEN 'false' ELSE 'true' END) AS taken, adverts.price, adverts.nature_package, 
+                                    (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id) AS provider_response_count, adverts.created_at, adverts.updated_at
+                                FROM adverts, customers, users 
+                                WHERE adverts.id_customer = customers.id 
+                                AND customers.id_user = users.id   
+                                AND adverts.deleted_at IS NULL
+                                AND adverts.id 
+                                    IN (SELECT advert_responses.id_advert 
+                                            FROM advert_responses 
+                                            WHERE advert_responses.id_provider_service = '".$provider->id."' 
+                                            AND advert_responses.id_advert = adverts.id )";
+
+            if($request->has('state') && isset($request->state) && !is_numeric($request->state)) 
+                return  $this->sendResponse(null, "Le state doit être un entier", "State must be an integer"); 
+
+            if($request->has('state') && isset($request->state) && is_numeric($request->state) && ($request->state < 1 || $request->state > 10)) 
+                return  $this->sendResponse(null, "Le state doit être entre 1 et 10", "The internship must be between 1 and 10"); 
+
+            if($request->has('state') && isset($request->state))
+                $queryAdverts = $queryAdverts . " AND adverts.state = '".StateAdvert::map()[$request->state]."' ";
+
+            if($request->has('taken') && isset($request->state) && !is_bool($request->state)) 
+                return  $this->sendResponse(null, "Taken doit être un entier", "Taken must be an boolean"); 
+
+            if($request->has('taken') && isset($request->taken))
+                $queryAdverts = $queryAdverts . " AND adverts.taken = '".$request->taken."' ";
 
             $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
 
@@ -428,7 +498,7 @@ class AdvertController extends Controller
 
 
     /**
-     * Prestataire: Tous les annonces en cours d'un client.
+     * 
      *
      */
     public function changeStateAdvert(Request $request)
@@ -537,6 +607,8 @@ class AdvertController extends Controller
                 return  $this->sendResponse(null, "Le state doit être entre 1 et 10", "The internship must be between 1 and 10"); 
 
 
+                
+
             if($request->has('state') && isset($request->state))
                 $queryAdverts = $queryAdverts . " AND adverts.state = '".StateAdvert::map()[$request->state]."' ";
 
@@ -612,7 +684,6 @@ class AdvertController extends Controller
     }
 
     
-
     /**
      * Client: Tous les prestataire qui ont postuler dans une annonces.
      *
@@ -642,6 +713,8 @@ class AdvertController extends Controller
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
         } 
     }
+
+    
  
     /**
      * Client: Choisir un prestataire.

@@ -1,17 +1,15 @@
 <?php
 
-/**
- * Created by Reliese Model.
- * Date: Sat, 12 Dec 2020 18:26:11 +0000.
- */
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Database\Eloquent\Model as Eloquent; 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Passport\HasApiTokens;
+use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Jetstream\HasProfilePhoto;
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Class User
@@ -44,35 +42,18 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class User extends Authenticatable
 {
-	use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
-
-	protected $casts = [
-		'id_identity_type' => 'int',
-		'id_pays' => 'int',
-		'id_user_type' => 'int',
-		'is_email_verify' => 'boolean',
-		'is_phone_verify' => 'boolean',
-		'is_identity_verify' => 'boolean',
-		'active' => 'boolean',
-	];
-
-	protected $dates = [
-		'phone_verified_at',
-		'email_verified_at',
-		'identity_verified_at',
-	];
-
-	protected $hidden = [
-		'password',
-		'remember_token'
-	];
-
- 
-  
+    use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, TwoFactorAuthenticatable, SoftDeletes;
+    
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
 
 	protected $fillable = [
 		'firstname',
 		'lastname',
+		'name',
 		'email',
 		'is_email_verify',
 		'email_verified_at',
@@ -92,6 +73,50 @@ class User extends Authenticatable
 		'id_user_type',
 		'remember_token'
 	];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'two_factor_recovery_codes',
+        'two_factor_secret',
+    ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [ 
+		'id_identity_type' => 'int',
+		'id_pays' => 'int',
+		'id_user_type' => 'int',
+		'is_email_verify' => 'boolean',
+		'is_phone_verify' => 'boolean',
+		'is_identity_verify' => 'boolean',
+		'active' => 'boolean',
+    ];
+
+
+	protected $dates = [
+		'phone_verified_at',
+		'email_verified_at',
+		'identity_verified_at',
+	];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'profile_photo_url',
+    ];
+
 
 	public function identity_type()
 	{
@@ -118,4 +143,3 @@ class User extends Authenticatable
 		return $this->hasMany(\App\Models\ProviderService::class, 'id_user');
 	}
 }
-  

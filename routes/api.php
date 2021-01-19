@@ -25,7 +25,7 @@ Route::post('login',  [LoginController::class, 'login']);
 Route::post('check',  [UserController::class, 'check']);
 Route::post('otp-confirmation', [UserController::class, 'otpConfirmation']);
 
-Route::group(['middleware' => 'auth:api'], function() {
+Route::group(['middleware' => 'auth:sanctum'], function() {
     //Auth
     Route::post('logout',  [LoginController::class, 'logout']);
     Route::get('get-profile',  [UserController::class, 'show']);
@@ -38,6 +38,7 @@ Route::group(['middleware' => 'auth:api'], function() {
     Route::get('adverts/{id}', [AdvertController::class, 'advertById']);
     Route::get('adverts', [AdvertController::class, 'adverts']);
     Route::get('adverts-except-postulated', [AdvertController::class, 'advertsExceptPostulated']);
+    Route::get('adverts-postulated', [AdvertController::class, 'advertsPostulated']);
     Route::get('adverts-by-provider', [AdvertController::class, 'advertsByProvider']);
     Route::get('providers-by-advert/{id}', [AdvertController::class, 'providersByAdvert']);
     Route::post('choose-this-provider', [AdvertController::class, 'chooseThisProvider']);

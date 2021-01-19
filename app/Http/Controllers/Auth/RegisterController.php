@@ -79,10 +79,16 @@ class RegisterController extends Controller
 
             $userData = request()->all();
             if(isset($request->identity_value))
-                $userData['identity_value']  = $request->file('identity_value')->store('identity');
+                $userData['identity_value'] = $request->file('identity_value')->store('identity');
+
+            if(isset($request->firstname))
+                $userData['name'] = $request->firstname.' ';
+           
+            if(isset($request->lastname))
+                $userData['name'] = $userData['name'].$request->lastname;
 
             if(isset($request->profile_photo_path))
-                $userData['profile_photo_path']  = $request->file('profile_photo_path')->store('profile');
+                $userData['profile_photo_path'] = $request->file('profile_photo_path')->store('profile');
  
             $userData['password'] = bcrypt($request->password); 
 
@@ -116,30 +122,29 @@ class RegisterController extends Controller
             */
 
 
-                $type_user = $user->id_user_type;
-                if($user && $type_user == Constants::USER_TYPE_CLIENT ) {
-                    //$iduser=$client->get('id');
-                    $datacustomer = new Customer();
-                    $datacustomer->id_user = $user->id;
-                    $datacustomer->avis = $request->get('avis', 'RAS');
-                    $datacustomer->save();
-                }
-                elseif($user && $type_user == Constants::USER_TYPE_PRESTATAIRE){
-                    $dataprovider = new ProviderService();
-                    $dataprovider->id_user = $user->id;
-                    $dataprovider->avis = $request->get('avis', 'RAS');
-                    $dataprovider->save();
-                }
-                elseif($user && $type_user == Constants::USER_TYPE_ADMIN){
-                    $dataadmin = new Admin();
-                    $dataadmin->id_user = $user->id;
-                    $dataadmin->avis = $request->get('avis', 'RAS');
-                    $dataadmin->save();
-                }
-                else{
-                    return  $this->sendResponse(null, 'ce type d\'utilisateur n\'existe pas', 'ce type d\'utilisateur n\'existe pas', 400);
-                  
-                } 
+            $type_user = $user->id_user_type;
+            if($user && $type_user == Constants::USER_TYPE_CLIENT ) { 
+                $datacustomer = new Customer();
+                $datacustomer->id_user = $user->id;
+                $datacustomer->avis = $request->get('avis', 'RAS');
+                $datacustomer->save();
+            }
+            elseif($user && $type_user == Constants::USER_TYPE_PRESTATAIRE){
+                $dataprovider = new ProviderService();
+                $dataprovider->id_user = $user->id;
+                $dataprovider->avis = $request->get('avis', 'RAS');
+                $dataprovider->save();
+            }
+            elseif($user && $type_user == Constants::USER_TYPE_ADMIN){
+                $dataadmin = new Admin();
+                $dataadmin->id_user = $user->id;
+                $dataadmin->avis = $request->get('avis', 'RAS');
+                $dataadmin->save();
+            }
+            else{
+                return  $this->sendResponse(null, 'ce type d\'utilisateur n\'existe pas', 'ce type d\'utilisateur n\'existe pas', 400);
+                
+            }
                  
             // commit transaction
             DB::commit();
@@ -152,6 +157,5 @@ class RegisterController extends Controller
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
         }
    }
-
 
 }
