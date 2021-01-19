@@ -49,6 +49,25 @@ class RouteServiceProvider extends ServiceProvider
         });
     }
 
+
+    /**
+     * Load the standard routes file for the application.
+     *
+     * @param  string  $path
+     * @return mixed
+     */
+    protected function loadRoutesFrom($path)
+    {
+        Route::group([
+            'middleware' => 'api',
+            'namespace' => $this->namespace,
+            'prefix' => 'api',
+        ], function ($router) use ($path) {
+            require $path;
+        });
+    }
+
+
     /**
      * Configure the rate limiters for the application.
      *
