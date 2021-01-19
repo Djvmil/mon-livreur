@@ -269,7 +269,7 @@ class AdvertController extends Controller
     }
 
     /**
-     * Prestataire: Tous les annonces sauf les annonces déjà postulé avec comme status: POSTULED
+     * Prestataire: Tous les annonces avec comme status: POSTULED
      * 
      */
     public function advertsPostulated(Request $request)
