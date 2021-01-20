@@ -444,7 +444,7 @@ class AdvertController extends Controller
 
                 $providerOrProvider   = ProviderService::where("id_user", $user->id)->first(); 
 
-            if(!isset($providerOrProvider)) 
+                if(!isset($providerOrProvider)) 
                     return  $this->sendResponse(null, "Prestataire non trouvée", "Provider not found", 400);
  
                 $msg = "Service en cours de developpement";
@@ -469,6 +469,13 @@ class AdvertController extends Controller
                 return  $this->sendResponse(null, "Annonce non trouvée", "Advert not found", 400);
             
             $updateData = request()->all(); 
+ 
+            if($request->has('state') && isset($request->state) && !is_numeric($request->state)) 
+                return  $this->sendResponse(null, "Le state doit être un entier", "State must be an integer"); 
+
+            if($request->has('state') && isset($request->state) && is_numeric($request->state) && ($request->state < 1 || $request->state > 10)) 
+                return  $this->sendResponse(null, "Le state doit être entre 1 et 10", "The internship must be between 1 and 10"); 
+
   
             if($request->has("state") && isset($request->state)) {
                 $updateData["state"] = $advert->state; 
@@ -492,10 +499,8 @@ class AdvertController extends Controller
         } catch (\Throwable $th) {
             //throw $th;
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
-
         }
     }
-
 
     /**
      * 
@@ -527,14 +532,18 @@ class AdvertController extends Controller
             //return  $this->sendResponse(StateAdvert::map());
             //return  $this->sendResponse(StateAdvert::DELIVERED);
 
-            $advert = $advert->where('state', '!=', StateAdvert::map()[StateAdvert::DELIVERED])->first();
-            if(!isset($advert)) 
+            if($advert->state == 1 || $advert->state == 6)
+                return  $this->sendResponse(null, "Vous n'êtes pas autorisé à affecter ses states", "You are not allowed to assign its states", 400);
+
+            $advertSearch = $advert->where('state', '!=', StateAdvert::map()[StateAdvert::DELIVERED])->first();
+            if(!isset($advertSearch)) 
                 return  $this->sendResponse(null, "Annonce déjà livrée", "Announcement already delivered", 400);
   
             $advertResponse = AdvertResponse::where(["id_advert" => $request->id_advert, "id_provider_service" => $provider->id, "taken" => true])->first();
             if(!isset($advertResponse)) 
                 return  $this->sendResponse(null, "Vous n'êtes pas autorisé à changer l'étape de cette annonce", "You are not allowed to change the stage of this announcement", 400);
  
+                //dd($request->state);
             $advert->state = StateAdvert::map()[$request->state];
             $advert->save();
  
@@ -606,9 +615,7 @@ class AdvertController extends Controller
             if($request->has('state') && isset($request->state) && is_numeric($request->state) && ($request->state < 1 || $request->state > 10)) 
                 return  $this->sendResponse(null, "Le state doit être entre 1 et 10", "The internship must be between 1 and 10"); 
 
-
-                
-
+ 
             if($request->has('state') && isset($request->state))
                 $queryAdverts = $queryAdverts . " AND adverts.state = '".StateAdvert::map()[$request->state]."' ";
 
