@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\UserType;
 use App\Models\ProviderService;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class UserTableSeeder extends Seeder
 {
@@ -32,7 +33,9 @@ class UserTableSeeder extends Seeder
                 "password" => bcrypt("passer123"),
                 "id_user_type" => $admin->id,
                 "phone" => "221774294171", 
-                "address" => "Nord Foire" 
+                "address" => "Nord Foire", 
+                "created_at" => Carbon::now(),
+                "updated_at" =>  Carbon::now()
             ],
             [ 
                 "firstname" => "Djibril",
@@ -42,7 +45,9 @@ class UserTableSeeder extends Seeder
                 "password" => bcrypt("passer123"),
                 "id_user_type" => $customer->id,
                 "phone" => "221774294172", 
-                "address" => "Nord Foire" 
+                "address" => "Nord Foire",
+                "created_at" => Carbon::now(),
+                "updated_at" =>  Carbon::now()
             ], 
             [ 
                 "firstname" => "Omar",
@@ -52,7 +57,9 @@ class UserTableSeeder extends Seeder
                 "password" => bcrypt("passer123"),
                 "id_user_type" => $provider->id,
                 "phone" => "221774294173", 
-                "address" => "Nord Foire" 
+                "address" => "Nord Foire", 
+                "created_at" => Carbon::now(),
+                "updated_at" =>  Carbon::now()
             ], 
         ]; 
         User::insert($data);
@@ -70,13 +77,17 @@ class UserTableSeeder extends Seeder
         $result = User::where('email', "djibi@yopmail.com")->first();
         Customer::create(array(
             "id_user" => $result->id,
-            "avis" => "RAS"
+            "avis" => "RAS", 
+            "created_at" => Carbon::now(),
+            "updated_at" =>  Carbon::now()
         ));
 
         $result = User::where('email', "omar@yopmail.com")->first();
         ProviderService::create(array(
             "id_user" => $result->id,
-            "avis" => "RAS"
+            "avis" => "RAS", 
+            "created_at" => Carbon::now(),
+            "updated_at" =>  Carbon::now()
         ));
  
     }
