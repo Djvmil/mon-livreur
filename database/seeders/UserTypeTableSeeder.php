@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\UserType;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class UserTypeTableSeeder extends Seeder
 {
@@ -19,21 +20,24 @@ class UserTypeTableSeeder extends Seeder
         $data = [
             [
                 "id" => 1,
-                "name" => "ADMINISTRATEUR"
+                "name" => "ADMINISTRATEUR", 
+                "created_at" => Carbon::now(),
+                "updated_at" =>  Carbon::now()
             ],
             [
                 "id" => 2,
-                "name" => "CLIENT"
+                "name" => "CLIENT", 
+                "created_at" => Carbon::now(),
+                "updated_at" =>  Carbon::now()
             ], 
             [
                 "id" => 3,
-                "name" => "PRESTATAIRE"
+                "name" => "PRESTATAIRE", 
+                "created_at" => Carbon::now(),
+                "updated_at" =>  Carbon::now()
             ], 
         ];
         
-        UserType::insert(array(
-            ["name" => "ADMINISTRATEUR"],
-            ["name" => "CLIENT"], 
-            ["name" => "PRESTATAIRE"] ));
+        UserType::insert($data);
     }
 }
