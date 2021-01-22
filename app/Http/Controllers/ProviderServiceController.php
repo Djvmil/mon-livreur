@@ -10,18 +10,18 @@ use App\Models\ProviderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\Constants;
-use App\Enums\StateAdvert; 
+use App\Enums\StateAdvert;
+use App\Http\Service\SmsService;
+use App\Http\Repositories\ProviderServiceRepository;
 use Illuminate\Support\Str; 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Validator; 
-use App\Http\Service\SmsService;
-use App\Http\Repositories\AdvertRepository;
+use Illuminate\Support\Facades\Validator;  
 
-class AdvertController extends BaseController
-{
+class ProviderServiceController extends BaseController
+{ 
     private $smsService;
     private $repo; 
-    public function __construct(SmsService $smsService, AdvertRepository $repo)
+    public function __construct(SmsService $smsService, ProviderServiceRepository $repo)
     {
         $this->smsService = $smsService;
         $this->repo = $repo; 

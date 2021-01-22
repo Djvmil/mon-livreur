@@ -4,9 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Admin;
 use Illuminate\Http\Request;
+use App\Http\Service\SmsService;
+use App\Http\Repositories\AdminRepository;
 
-class AdminController extends Controller
+class AdminController extends BaseController
 {
+    private $smsService;
+    private $repo; 
+    public function __construct(SmsService $smsService, AdminRepository $repo)
+    {
+        $this->smsService = $smsService;
+        $this->repo = $repo; 
+    }
+    
     /**
      * Display a listing of the resource.
      *

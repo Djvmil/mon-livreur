@@ -7,7 +7,7 @@ use App\Models\Customer;
 use App\Models\ProviderService;
 use App\Models\User; 
 use App\Models\AuthOtp; 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseController;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -15,9 +15,9 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\Constants;
-use App\Http\Service\SendSms; 
+use App\Http\Service\SmsService; 
 
-class RegisterController extends Controller
+class RegisterController extends BaseController
 {
     /*
     |--------------------------------------------------------------------------

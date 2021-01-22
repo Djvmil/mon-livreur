@@ -15,13 +15,14 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator; 
 use App\Http\Service\SmsService;
-use App\Http\Repositories\AdvertRepository;
+use App\Http\Repositories\CustomerRepository;
 
-class AdvertController extends BaseController
+class CustomerController extends BaseController
 {
+
     private $smsService;
     private $repo; 
-    public function __construct(SmsService $smsService, AdvertRepository $repo)
+    public function __construct(SmsService $smsService, CustomerRepository $repo)
     {
         $this->smsService = $smsService;
         $this->repo = $repo; 

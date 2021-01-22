@@ -44,10 +44,5 @@ class Customer extends Eloquent
 	{
 		return $this->belongsTo(\App\Models\User::class, 'id_user');
 	}
-
-    public function annonce()
-    {
-        return $this->hasMany(\App\Models\Annonce::class, 'idcustomer');
-    }
-
+ 
 }
