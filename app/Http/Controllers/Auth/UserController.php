@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller; 
+use App\Http\Controllers\BaseController; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator; 
 use App\Models\AuthOtp; 
@@ -10,13 +10,21 @@ use App\Models\User;
 use App\Models\Advert;
 use App\Models\Customer;
 use Illuminate\Support\Facades\DB;
-use App\Helpers\Constants;
-use App\Http\Service\SendSms;
+use App\Helpers\Constants; 
 use Illuminate\Support\Str; 
 use Illuminate\Support\Facades\Hash;  
+use App\Http\Service\SmsService;
+use App\Http\Repositories\UserRepository;
 
-class UserController extends Controller
+class UserController extends BaseController
 { 
+    private $smsService;
+    private $repo; 
+    public function __construct(SmsService $smsService, UserRepository $repo)
+    {
+        $this->smsService = $smsService;
+        $this->repo = $repo; 
+    }
 
     public function  show(Request $request){
         try {
@@ -108,7 +116,7 @@ class UserController extends Controller
                             $resData['otp'] = $otpCode; 
                             $resData['auth'] = $authOtp->auth; 
 
-                            $sendMsg = new SendSms();
+                            $sendMsg = new SmsService();
                             $sendMsg->sendMessage($request->value, "Votre code de confirmation est $otpCode.\n Le code expire dans 10 minutes ");
                     }else if($request->field == "email"){
                         //send mail

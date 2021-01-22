@@ -58,9 +58,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::get('allclient', [ClientController::class, 'allClient']);
     Route::get('allprestataire', [PrestataireController::class, 'allPrestataire']);
 });
-
-
-Route::apiResource('annonce',\App\Http\Controllers\AnnonceController::class);
+ 
 
 //route register and login client
 Route::post('clientregister', [ClientController::class, 'register']);

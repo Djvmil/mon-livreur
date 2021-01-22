@@ -11,7 +11,7 @@ use App\Http\Requests;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
-class SetupController extends Controller
+class SetupController extends BaseController
 {
 
     public function setup(){

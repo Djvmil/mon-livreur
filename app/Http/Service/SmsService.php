@@ -5,7 +5,7 @@ namespace App\Http\Service;
 use Closure;
 use Illuminate\Http\Request;
 
-class SendSms
+class SmsService
 { 
     public function sendMessage($receiver, $message)
     {
