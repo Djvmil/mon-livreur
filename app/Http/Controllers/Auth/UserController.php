@@ -58,8 +58,10 @@ class UserController extends BaseController
             if(isset($request->identity_value))
                 $updateData['identity_value']  = $request->file('identity_value')->store('identity'); 
                
-            if(isset($request->profile_photo_path))
+            if(isset($request->profile_photo_path)){ 
                 $updateData['profile_photo_path']  = $request->file('profile_photo_path')->store('profile');
+                $updateData['profile_photo_url']   = $updateData['profile_photo_path'];
+            }
 
             if(isset($request->password))
                 $updateData['password'] = bcrypt($request->password); 
