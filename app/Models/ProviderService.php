@@ -30,11 +30,16 @@ class ProviderService extends Eloquent
 	 
 
 	protected $casts = [
-		'id_user' => 'int'
+		'id_user' => 'int',
+		'rate' => 'int',
+		'delivry_count' => 'int'
 	];
 
 	protected $fillable = [
-		'id_user'
+		'id_user',
+		'avis',
+		'rate',
+		'delivry_count',
 	];
 
 	public function user()

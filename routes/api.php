@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\AdvertController;
+use App\Http\Controllers\NoticeController;
 
 
 /*
@@ -46,6 +47,12 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 
     Route::get('adverts-with-providers-status', [AdvertController::class, 'advertsWithProviderStatus']);
     Route::post('change-state-advert', [AdvertController::class, 'changeStateAdvert']);
+
+
+    //Rate 
+    Route::post('create-rate', [NoticeController::class, 'create']);
+    Route::post('update-rate', [NoticeController::class, 'update']);
+    Route::post('rates', [NoticeController::class, 'rates']);
 });
 
 
