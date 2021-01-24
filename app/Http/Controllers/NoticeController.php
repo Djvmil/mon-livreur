@@ -73,6 +73,39 @@ class NoticeController extends BaseController
            return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
        }
    }
+
+   public function update(Request $request)
+   {
+        $validateData = Validator::make($request->all(), [
+            'id'=>'required',
+            'id_advert'=>'required',
+            'id_provider'=>'required',
+            'id_customer'=>'required' 
+        ]);
+
+        if($validateData->fails())
+            return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
+
+
+        try {   
+            $notice = Notice::find($request->id);
+
+            if(!isset($notice)) 
+                return  $this->sendResponse(null, "Note non trouvée", "Rate not found", 400);
+            
+            $updateData = request()->all();  
+
+            $res = Notice::where('id', $request->id)->update($updateData); 
+            $notice = Notice::find($request->id);
+
+            $msg = "Informations note mises à jour";
+            return  $this->sendResponse($rates, $msg, "Rate informations updated"); 
+
+       } catch (\Throwable $th) {
+           //throw $th;
+           return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
+       }
+   }
    
    public function rates(Request $request)
    {
