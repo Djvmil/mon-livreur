@@ -32,12 +32,16 @@ class Customer extends Eloquent
 
 	protected $casts = [
 		'id_user' => 'int',
-        'idcustomer'=>'int'
+        'idcustomer'=>'int',
+		'rate' => 'int',
+		'delivry_count' => 'int'
 	];
 
 	protected $fillable = [
 		'id_user',
-		'avis'
+		'avis',
+		'rate',
+		'delivry_count'
 	];
 
 	public function user()
