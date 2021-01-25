@@ -12,11 +12,12 @@ class AddFieldRateOnTableCustomer extends Migration
      * @return void
      */
     public function up()
-    { 
-        Schema::table('customers', function (Blueprint $table) {
+    {  
+         
+        Schema::table('provider_services', function (Blueprint $table) {
             $table->string('rate', 100)->nullable()->after('avis')->default(0);
             $table->string('delivry_count', 100)->nullable()->after('rate')->default(0);
-        });  
+        }); 
     }
 
     /**
