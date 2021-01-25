@@ -40,7 +40,7 @@ class Notice extends Eloquent
 
 	protected $fillable = [
 		'id_customer',
-		'avis',
+		'rate',
 		'comment',
 		'id_customer',
 		'id_provider',
