@@ -645,7 +645,7 @@ class AdvertController extends BaseController
                         $query->where('taken', true)->select('id', 'comment', 'taken', 'price', 'acceptance_date', 'id_advert', 'id_provider_service');
                     },
                     "advertResponse.provider" => function($query) { 
-                        $query->select('provider_services.id', 'id_user', 'avis', 'firstname', 'firstname', 'lastname', 'profile_photo_path', 'email', 'phone', 
+                        $query->select('provider_services.id', 'id_user', 'firstname', 'firstname', 'lastname', 'profile_photo_path', 'email', 'phone', 'rate', 'delivry_count', 'avis',
                                     DB::raw("(CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify"),
                                     DB::raw("(CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify"),
                                     DB::raw("(CASE WHEN users.is_identity_verify = 0 THEN 'false' ELSE 'true' END) AS is_identity_verify"), 'email', 'users.created_at AS user_registration_date')
