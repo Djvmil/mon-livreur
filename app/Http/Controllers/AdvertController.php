@@ -542,22 +542,37 @@ class AdvertController extends BaseController
 
             if($advert->state == 1 || $advert->state == 6)
                 return  $this->sendResponse(null, "Vous n'êtes pas autorisé à affecter ses states", "You are not allowed to assign its states", 400);
-
-            $advertSearch = $advert->where('state', '!=', StateAdvert::map()[StateAdvert::DELIVERED])->first();
-            if(!isset($advertSearch)) 
-                return  $this->sendResponse(null, "Annonce déjà livrée", "Announcement already delivered", 400);
-  
+ 
             $advertResponse = AdvertResponse::where(["id_advert" => $request->id_advert, "id_provider_service" => $provider->id, "taken" => true])->first();
             if(!isset($advertResponse)) 
                 return  $this->sendResponse(null, "Vous n'êtes pas autorisé à changer l'étape de cette annonce", "You are not allowed to change the stage of this announcement", 400);
  
+ 
+            if($request->has('rate') && isset($request->rate) && !is_numeric($request->rate)) 
+                return  $this->sendResponse(null, "La note doit être un entier", "Rate must be an integer"); 
+
+            if($request->has('rate') && isset($request->rate) && is_numeric($request->rate) && ($request->rate < 1 || $request->rate > 5)) 
+                return  $this->sendResponse(null, "La note doit être entre 1 et 5", "The rate must be between 1 and 5"); 
+ 
                 //dd($request->state);
             $advert->state = StateAdvert::map()[$request->state];
-            $advert->save();
- 
-            $msg = "Étape changée avec succès";
-            $debugMsg = "Step changed successfully";
 
+            $advert->comment = isset($request->comment) ? $request->comment : "null";
+            $advert->rate = isset($request->rate) ? $request->rate : 0;
+            $advert->save();
+
+            if($request->state == StateAdvert::DELIVERED){
+
+                $this->repo->finalizationOfDelivery($advert, $advertResponse);
+
+                $msg = "Votre livraison est effectuée avec succès";
+                $debugMsg = "Your delivery is successful"; 
+            }else{
+                $msg = "Annonce changée avec succès";
+                $debugMsg = "Step changed successfully";
+
+            }
+ 
             return  $this->sendResponse(null, $msg, $debugMsg); 
         } catch (\Throwable $th) {
             //throw $th;
@@ -644,12 +659,15 @@ class AdvertController extends BaseController
             ->with(["advertResponse" => function($query) { 
                         $query->where('taken', true)->select('id', 'comment', 'taken', 'price', 'acceptance_date', 'id_advert', 'id_provider_service');
                     },
-                    "advertResponse.provider" => function($query) { 
-                        $query->select('provider_services.id', 'id_user', 'firstname', 'firstname', 'lastname', 'profile_photo_path', 'email', 'phone', 'rate', 'delivry_count', 'avis',
+                    "advertResponse.provider" => function($query) use($customer) { 
+                        $query->select('provider_services.id', 'id_user', 'firstname', 'firstname', 'lastname', 'profile_photo_path', 'email', 'phone', 'avis',
                                     DB::raw("(CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify"),
                                     DB::raw("(CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify"),
                                     DB::raw("(CASE WHEN users.is_identity_verify = 0 THEN 'false' ELSE 'true' END) AS is_identity_verify"), 'email', 'users.created_at AS user_registration_date')
                                 ->join('users', 'users.id', '=', 'id_user');
+                    },
+                    "advertResponse.notice" => function($query){
+                        $query->select('rate', 'comment', 'id_advert_response');
                     }]);  
 
        

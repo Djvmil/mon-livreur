@@ -13,7 +13,7 @@ use Laravel\Sanctum\HasApiTokens;
 * @property \Carbon\Carbon $updated_at
 * @property string $deleted_at
 */
-class AdvertResponse extends Model
+class AdvertsDelivered extends Model
 { 
     use SoftDeletes;
 
@@ -23,14 +23,16 @@ class AdvertResponse extends Model
      *
      * @var string
      */
-    protected $table = 'advert_responses';
+    protected $table = 'adverts_delivered';
  
 
 	protected $casts = [ 
         'id_advert'=>'int',
         'id_provider_service'=>'int',
+        'id_advert_response'=>'int',
+        'id_customer'=>'int',
         'price' => 'float',
-		'taken' => 'boolean',
+		'taken' => 'boolean',  
     ];
     
 	protected $dates = [
@@ -45,10 +47,13 @@ class AdvertResponse extends Model
     protected $fillable = [
         'comment',
         'taken',
+        'rate',
         'price',
         'id_advert',
-        'acceptance_date',
+        'delivered_date',
         'id_provider_service', 
+        'id_customer', 
+        'id_advert_response', 
     ];
   
     public function advert()
@@ -61,11 +66,15 @@ class AdvertResponse extends Model
         return $this->belongsTo(\App\Models\ProviderService::class, 'id_provider_service');
     }
   
-    public function notice()
+    public function customer()
     {
-        return $this->belongsTo(\App\Models\AdvertsDelivered::class, 'id', 'id_advert_response');
+        return $this->belongsTo(\App\Models\Customer::class, 'id_customer');
     }
-    
+
+    public function advertResponse()
+    {
+        return $this->belongsTo(\App\Models\AdvertResponse::class, 'id_advert_response');
+    }
 }
 
 

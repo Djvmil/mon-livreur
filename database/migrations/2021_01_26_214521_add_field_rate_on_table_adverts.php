@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddFieldRateOnTableCustomer extends Migration
+class AddFieldRateOnTableAdverts extends Migration
 {
     /**
      * Run the migrations.
@@ -12,11 +12,12 @@ class AddFieldRateOnTableCustomer extends Migration
      * @return void
      */
     public function up()
-    { 
-        Schema::table('customers', function (Blueprint $table) {
-            $table->integer('rate')->default(0)->after('avis');
-            $table->integer('delivry_count')->default(0)->after('rate');
-        });
+    {  
+         
+        Schema::table('adverts', function (Blueprint $table) {
+            $table->integer('rate')->nullable()->default(0);
+			$table->text('comment', 65535)->nullable()->after('rate'); 
+        }); 
     }
 
     /**

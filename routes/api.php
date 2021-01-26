@@ -50,9 +50,10 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 
 
     //Rate 
-    Route::post('create-rate', [NoticeController::class, 'create']);
+    Route::post('rate', [NoticeController::class, 'rate']);
     Route::post('update-rate', [NoticeController::class, 'update']);
-    Route::post('rates', [NoticeController::class, 'rates']);
+    Route::get('rates', [NoticeController::class, 'rates']);
+    Route::post('rates-by-provider', [NoticeController::class, 'ratesByProvider']);
 });
 
 
