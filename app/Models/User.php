@@ -67,6 +67,7 @@ class User extends Authenticatable
 		'is_identity_verify',
 		'identity_verified_at',
 		'profile_photo_path',
+		'profile_photo_url',
 		'url_img',
 		'address',
 		'id_pays',
@@ -107,16 +108,7 @@ class User extends Authenticatable
 		'email_verified_at',
 		'identity_verified_at',
 	];
-
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array
-     */
-    protected $appends = [
-        'profile_photo_url',
-    ];
-
+ 
 
 	public function identity_type()
 	{

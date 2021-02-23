@@ -580,7 +580,6 @@ class AdvertController extends BaseController
         } 
     }
 
-
     /**
      * Prestataire: Tous les annonces d'un prestataire (les annonces qu'il a postulé ) 
      * avec comme status: ACCEPTED_STATUS | REFUSED_STATUS | WAITING_STATUS
@@ -619,7 +618,6 @@ class AdvertController extends BaseController
             if($request->has('state') && isset($request->state) && is_numeric($request->state) && ($request->state < 1 || $request->state > 10)) 
                 return  $this->sendResponse(null, "Le state doit être entre 1 et 10", "The internship must be between 1 and 10"); 
 
- 
             if($request->has('state') && isset($request->state))
                 $queryAdverts = $queryAdverts . " AND adverts.state = '".StateAdvert::map()[$request->state]."' ";
 

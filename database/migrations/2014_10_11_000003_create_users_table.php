@@ -26,6 +26,7 @@ class CreateUsersTable extends Migration
 			$table->string('identity_value', 255)->nullable();
 			$table->boolean('is_identity_verify')->default(false)->nullable();
 			$table->string('profile_photo_path', 255)->nullable();
+			$table->string('profile_photo_url', 255)->nullable();
 			$table->string('url_img', 255)->nullable();
 			$table->string('address', 255)->nullable();
 			$table->integer('id_country')->index('id_country')->nullable();
