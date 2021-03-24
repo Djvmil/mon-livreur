@@ -32,7 +32,7 @@ class CreateNewUser implements CreatesNewUsers
         ])->validate();
   
         $input['password'] = bcrypt($input['password']);  
-        $input['profile_photo_path']   = $input['profile_photo_url'];  
+        $input['profile_photo_path']   = isset($input['profile_photo_url'])? $input['profile_photo_url'] : null;  
         $user = User::create($input);
  
     }
