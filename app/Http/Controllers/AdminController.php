@@ -80,10 +80,13 @@ class AdminController extends BaseController
     public function testNotif()
     { 
         
-        $message = CloudMessage::withTarget('topic', "news")
-        ->withNotification(Notification::create("title", "body")) 
-        ->withData(['type' => 'type_1']);
-        $this->messaging->send($message); 
+        /*$message = CloudMessage::withTarget('topic', "news")
+        ->withNotification(Notification::create("Topic", "body")) 
+        ->withData(['type' => 'type_1']); */
+
+        $message = CloudMessage::withTarget('token', "f0YT9EiWQReYN8bTWRhd3b:APA91bE7ceb3JRyy9daS0dDW6r3gwMNg7wz3OCuVp2n3WOompapBJebapeFRCYoNXBvKZ1beAjucyyiB5Vq5a_rLS2txZy96fjfmQ2PEkWuGaJFEyUJqrIzhPszj6YXiX24DBWu0yQHJ")
+        ->withNotification(Notification::create("Device Token", "body")) 
+        ->withData(['type' => 'type_1']); 
 
         return $this->sendResponse($this->messaging->send($message));
     }
