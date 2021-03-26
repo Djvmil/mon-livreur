@@ -14,7 +14,7 @@ use App\Enums\StateAdvert;
 use Illuminate\Support\Str; 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator; 
-use App\Http\Service\SmsService;
+use App\Http\Services\SmsService;
 use App\Http\Repositories\CustomerRepository;
 
 class CustomerController extends BaseController

@@ -15,7 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\Constants;
-use App\Http\Service\SmsService; 
+use App\Http\Services\SmsService; 
 use App\Http\Repositories\NoticeRepository;
 
 class NoticeController extends BaseController

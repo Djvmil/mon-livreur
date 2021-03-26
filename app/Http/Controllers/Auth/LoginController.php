@@ -52,6 +52,8 @@ class LoginController extends BaseController
             if (auth()->attempt($data)) { 
 
                 $user = auth()->user();
+                $user->token_device = $request->tokenDevice;
+                $user->save();
 
                 $resData['user_type_id'] = $user->user_type->id;
                 $resData['user_type']    = $user->user_type->name;

@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\Constants;
 use App\Enums\StateAdvert;
-use App\Http\Service\SmsService;
+use App\Http\Services\SmsService;
 use App\Http\Repositories\ProviderServiceRepository;
 use Illuminate\Support\Str; 
 use Carbon\Carbon;

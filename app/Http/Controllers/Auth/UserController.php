@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 use App\Helpers\Constants; 
 use Illuminate\Support\Str; 
 use Illuminate\Support\Facades\Hash;  
-use App\Http\Service\SmsService;
+use App\Http\Services\SmsService;
 use App\Http\Repositories\UserRepository;
 
 class UserController extends BaseController

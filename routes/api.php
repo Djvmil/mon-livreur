@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\AdvertController;
 use App\Http\Controllers\NoticeController;
+use App\Http\Controllers\AdminController;
 
 
 /*
@@ -25,6 +26,8 @@ Route::post('login',  [LoginController::class, 'login']);
 
 Route::post('check',  [UserController::class, 'check']);
 Route::post('otp-confirmation', [UserController::class, 'otpConfirmation']);
+
+Route::get('testNotif', [AdminController::class, 'testNotif']);
 
 Route::group(['middleware' => 'auth:sanctum'], function() {
     //Auth
@@ -55,7 +58,6 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::get('rates', [NoticeController::class, 'rates']);
     Route::post('rates-by-provider', [NoticeController::class, 'ratesByProvider']);
 });
-
 
 /*
 Route::middleware('auth:sanctum')->get('/admin', function (Request $request) {

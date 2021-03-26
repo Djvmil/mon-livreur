@@ -4,17 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\Admin;
 use Illuminate\Http\Request;
-use App\Http\Service\SmsService;
+use App\Http\Services\SmsService;
 use App\Http\Repositories\AdminRepository;
+
+use Kreait\Firebase\Messaging;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 
 class AdminController extends BaseController
 {
     private $smsService;
     private $repo; 
-    public function __construct(SmsService $smsService, AdminRepository $repo)
+    public function __construct(SmsService $smsService, AdminRepository $repo, Messaging $messaging)
     {
         $this->smsService = $smsService;
         $this->repo = $repo; 
+        $this->messaging = $messaging;
     }
     
     /**
@@ -70,5 +75,16 @@ class AdminController extends BaseController
     public function destroy(Admin $admin)
     {
         //
+    }
+    
+    public function testNotif()
+    { 
+        
+        $message = CloudMessage::withTarget('topic', "news")
+        ->withNotification(Notification::create("title", "body")) 
+        ->withData(['type' => 'type_1']);
+        $this->messaging->send($message); 
+
+        return $this->sendResponse($this->messaging->send($message));
     }
 }

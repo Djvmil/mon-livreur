@@ -14,17 +14,22 @@ use App\Enums\StateAdvert;
 use Illuminate\Support\Str; 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator; 
-use App\Http\Service\SmsService;
+use App\Http\Services\SmsService;
 use App\Http\Repositories\AdvertRepository;
+
+use Kreait\Firebase\Messaging;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 
 class AdvertController extends BaseController
 {
     private $smsService;
     private $repo; 
-    public function __construct(SmsService $smsService, AdvertRepository $repo)
+    public function __construct(SmsService $smsService, AdvertRepository $repo, Messaging $messaging)
     {
         $this->smsService = $smsService;
         $this->repo = $repo; 
+        $this->messaging = $messaging;
     }
 
     /**
@@ -85,6 +90,16 @@ class AdvertController extends BaseController
                 'contact_person_phone' =>isset($request->contact_person_phone) ? $request->contact_person_phone : "null",
                 'id_customer' => $customer->id
             ]); 
+
+
+            try{
+                $message = CloudMessage::withTarget('topic', Constants::TOPICS_PROVIDER_SERVICE)
+                ->withNotification(Notification::create("Offre de livraison", "Un colis à livrer est disponible")) 
+                ->withData(['type' => 'type_1']);
+                $this->messaging->send($message); 
+            }catch(Exception $ex){
+                
+            }
 
             $msg = "Annonce créée avec succès";
             return  $this->sendResponse(null, $msg, "advert created successfully");
@@ -427,6 +442,17 @@ class AdvertController extends BaseController
             $applyData['acceptance_date'] = "null";
  
             $apply = AdvertResponse::create($applyData);  
+ 
+            try{
+                $custo = Advert::where("id", $request->id_advert)->with("customer.user")->first();
+
+                $message = CloudMessage::withTarget('token', $custo->customer->user->token_device)
+                ->withNotification(Notification::create("Demande", "Un livreur a postulé sur votre annonce")) 
+                ->withData(['type' => 'type_1']);
+                $this->messaging->send($message); 
+            }catch(Exception $ex){
+                
+            }
             
             $msg = "Vous avez postulé avec succès sur l'annonce";
             return  $this->sendResponse(null, $msg, "You have successfully applied on the advert");

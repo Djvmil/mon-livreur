@@ -73,6 +73,7 @@ class User extends Authenticatable implements MustVerifyEmail
 		'address',
 		'id_pays',
 		'id_user_type',
+		'token_device',
 		'remember_token'
 	];
 

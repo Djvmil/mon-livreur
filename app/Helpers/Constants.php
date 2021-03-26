@@ -12,6 +12,9 @@ class Constants
 	const STATUS_ENABLE = 1; 
 	const TYPE_AUTOMATIC = "AUTOMATIC";
 	const TYPE_MANUAL = "MANUAL";
+    const TOPICS_NEWS = "news";
+    const TOPICS_PROVIDER_SERVICE = "provider_service";
+    const TOPICS_CUSTOMER = "customer";
 	
 	
 	
