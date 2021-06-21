@@ -440,6 +440,7 @@ class AdvertController extends BaseController
 
             $advertResponse = AdvertResponse::where(["id_advert" => $request->id_advert, "id_provider_service" => $provider->id])->first();
 
+            $advert = Advert::where(["id_advert" => $request->id_advert])->first();
             if(isset($advertResponse)){
                 $msg = "Vous avez déjà postulé sur cette annonce";
                 $debugMsg = "You have already applied for this advert";
@@ -459,8 +460,8 @@ class AdvertController extends BaseController
                 $custo = Advert::where("id", $request->id_advert)->with("customer.user")->first();
 
                 $message = CloudMessage::withTarget('token', $custo->customer->user->token_device)
-                ->withNotification(Notification::create("Demande", "Un livreur a postulé sur votre annonce")) 
-                ->withData(['type' => 'type_1']);
+                ->withNotification(Notification::create("Demande", "Vous avez une nouvelle proposition pour votre course de ".$advert->departure_city." vers ".$advert->arrival_city.".")) 
+                ->withData(['type' => 'type_1', 'id_advert' => $request->id_advert ]);
                 $this->messaging->send($message); 
             }catch(Exception $ex){
                 
@@ -605,12 +606,25 @@ class AdvertController extends BaseController
 
                 $msg = "Votre livraison est effectuée avec succès";
                 $debugMsg = "Your delivery is successful"; 
+
+                try{
+                    $custo = Advert::where("id", $advert->id)->with("customer.user")->first();
+     
+                    $message = CloudMessage::withTarget('token', $custo->customer->user->token_device)
+                    ->withNotification(Notification::create("Demande", "Le livreur a signalé votre course comme terminée, vous pouvez dès à présent noter sa prestation.")) 
+                    ->withData(['type' => 'type_1', 'id_advert' =>  $advert->id]);
+                    $this->messaging->send($message);
+
+                }catch(Exception $ex){
+                    
+                }
+
             }else{
                 $msg = "Annonce changée avec succès";
                 $debugMsg = "Step changed successfully";
 
             }
- 
+            
             return  $this->sendResponse(null, $msg, $debugMsg); 
         } catch (\Throwable $th) {
             //throw $th;
@@ -782,7 +796,7 @@ class AdvertController extends BaseController
             if(!isset($customer))
                 return  $this->sendResponse(null, "Client non trouvée", "Customer not found", 400);
 
-            $provider = ProviderService::where("id", $request->id_provider)->first();
+            $provider = ProviderService::where("id", $request->id_provider)->with("user")->first();
             if(!isset($provider))
                 return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found", 400);
 
@@ -810,7 +824,16 @@ class AdvertController extends BaseController
             
             $msg = "Prestataire choisi avec succès";
             $debugMsg = "Successfully chosen providerService!";
-
+ 
+            try{ 
+                $message = CloudMessage::withTarget('token', $provider->user->token_device)
+                ->withNotification(Notification::create("Offre acceptée", "Votre proposition pour la livraison ".$advert->departure_city." vers ".$advert->arrival_city." est acceptée, contactez dès à présent votre client !")) 
+                ->withData(['type' => 'type_1', 'id_advert' => $advert->id]);
+                $this->messaging->send($message); 
+            }catch(Exception $ex){
+                
+            }
+ 
             // commit transaction
             DB::commit();
 
