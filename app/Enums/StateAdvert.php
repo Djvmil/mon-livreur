@@ -30,7 +30,7 @@ class StateAdvert extends Enum
     const ACCEPTED = 8;
     const REFUSED = 9;
     const WAITING = 10;
-    const Finish = 10;
+    const FINISH = 11;
 
     /**
      * Retrieve a map of enum keys and values.
@@ -50,7 +50,7 @@ class StateAdvert extends Enum
             static::ACCEPTED => 'Accepted',
             static::REFUSED => 'Refused',
             static::WAITING => 'Waiting',
-            static::Finish => 'Finish',
+            static::FINISH => 'Finish',
         ];
     }
 }
