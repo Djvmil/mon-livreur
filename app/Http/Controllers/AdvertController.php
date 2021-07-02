@@ -439,8 +439,7 @@ class AdvertController extends BaseController
             }
 
             $advertResponse = AdvertResponse::where(["id_advert" => $request->id_advert, "id_provider_service" => $provider->id])->first();
-
-            $advert = Advert::where(["id" => $request->id_advert])->first();
+ 
             if(isset($advertResponse)){
                 $msg = "Vous avez déjà postulé sur cette annonce";
                 $debugMsg = "You have already applied for this advert";
