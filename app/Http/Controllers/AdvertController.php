@@ -455,11 +455,11 @@ class AdvertController extends BaseController
  
             $apply = AdvertResponse::create($applyData);  
  
-            try{
+            try{ 
                 $custo = Advert::where("id", $request->id_advert)->with("customer.user")->first();
 
                 $message = CloudMessage::withTarget('token', $custo->customer->user->token_device)
-                ->withNotification(Notification::create("Demande", "Vous avez une nouvelle proposition pour votre course de ".$advert->departure_city." vers ".$advert->arrival_city.".")) 
+                ->withNotification(Notification::create("Demande", "Vous avez une nouvelle proposition pour votre course de ".$custo->departure_city." vers ".$custo->arrival_city.".")) 
                 ->withData(['type' => 'type_1', 'id_advert' => $request->id_advert ]);
                 $this->messaging->send($message); 
             }catch(Exception $ex){
