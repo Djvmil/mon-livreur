@@ -160,7 +160,20 @@ class AdvertController extends BaseController
 
                 if($request->has('state') && isset($request->state))
                     $queryAdverts = $queryAdverts . " AND adverts.state = '".StateAdvert::map()[$request->state]."' ";
- 
+
+                if($request->has('arrival_city') && !isset($request->arrival_city) ) 
+                    return  $this->sendResponse(null, "Le L'adresse de d'arrivée ne doit pas être null", "Arrival city must be not null");  
+
+                if($request->has('arrival_city') && isset($request->arrival_city))
+                    $queryAdverts = $queryAdverts . " AND adverts.arrival_city LIKE '%".$request->arrival_city."%' ";
+            
+                if($request->has('departure_city') && !isset($request->departure_city) ) 
+                    return  $this->sendResponse(null, "L'adresse de depart ne doit pas être null", "Departure_city must be not null");  
+
+                if($request->has('departure_city') && isset($request->departure_city))
+                    $queryAdverts = $queryAdverts . " AND adverts.departure_city LIKE '%".$request->departure_city."%' ";
+
+
                 $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
  
                 if(isset($resultAdverts) && count($resultAdverts) > 0){
@@ -203,18 +216,18 @@ class AdvertController extends BaseController
 
                 if($request->has('state') && isset($request->state))
                     $queryAdverts = $queryAdverts . " AND adverts.state = '".StateAdvert::map()[$request->state]."' ";
-              
+          
                 if($request->has('arrival_city') && !isset($request->arrival_city) ) 
                     return  $this->sendResponse(null, "Le L'adresse de d'arrivée ne doit pas être null", "Arrival city must be not null");  
 
                 if($request->has('arrival_city') && isset($request->arrival_city))
-                    $queryAdverts = $queryAdverts . " AND adverts.arrival_city LIKE %'".$request->arrival_city."'% ";
-              
+                    $queryAdverts = $queryAdverts . " AND adverts.arrival_city LIKE '%".$request->arrival_city."%' ";
+            
                 if($request->has('departure_city') && !isset($request->departure_city) ) 
                     return  $this->sendResponse(null, "L'adresse de depart ne doit pas être null", "Departure_city must be not null");  
 
                 if($request->has('departure_city') && isset($request->departure_city))
-                    $queryAdverts = $queryAdverts . " AND adverts.departure_city LIKE %'".$request->departure_city."'% ";
+                    $queryAdverts = $queryAdverts . " AND adverts.departure_city LIKE '%".$request->departure_city."%' ";
 
                 $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
 
