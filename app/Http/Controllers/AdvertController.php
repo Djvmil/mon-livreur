@@ -590,6 +590,7 @@ class AdvertController extends BaseController
             //return  $this->sendResponse(StateAdvert::map()[1]);
             //return  $this->sendResponse(StateAdvert::map());
             //return  $this->sendResponse(StateAdvert::DELIVERED);
+            //return  $this->sendResponse(StateAdvert::map()[StateAdvert::DELETED]; );
 
             if($advert->state == 1 || $advert->state == 6)
                 return  $this->sendResponse(null, "Vous n'êtes pas autorisé à affecter ses states", "You are not allowed to assign its states", 400);

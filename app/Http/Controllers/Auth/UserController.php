@@ -119,7 +119,7 @@ class UserController extends BaseController
                             $resData['auth'] = $authOtp->auth; 
 
                             $sendMsg = new SmsService();
-                            $sendMsg->sendMessage($request->value, "Votre code de confirmation est $otpCode.\n Le code expire dans 10 minutes ");
+                            $sendMsg->sendMessage($request->value, "Votre code de confirmation est: $otpCode.\n Le code expire dans 10 minutes ");
                     }else if($request->field == "email"){
                         //send mail
                         // $users->notify(new NotificationMail("votre compte sera activité prochainement"));
