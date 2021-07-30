@@ -39,6 +39,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::post('create-advert', [AdvertController::class, 'create']);
     Route::post('update-advert', [AdvertController::class, 'update']);
     Route::post('apply-on-advert', [AdvertController::class, 'applyOnAdvert']);
+    Route::post('delete-apply', [AdvertController::class, 'deleteApply']);
     Route::get('adverts/{id}', [AdvertController::class, 'advertById']);
     Route::get('adverts', [AdvertController::class, 'adverts']);
     Route::get('adverts-except-postulated', [AdvertController::class, 'advertsExceptPostulated']);

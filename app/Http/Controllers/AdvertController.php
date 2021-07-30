@@ -93,11 +93,14 @@ class AdvertController extends BaseController
 
 
             try{
-                $message = CloudMessage::withTarget('topic', Constants::TOPICS_PROVIDER_SERVICE)
-                ->withNotification(Notification::create("Offre de livraison", "Un colis à livrer est disponible")) 
-                ->withData(['type' => 'type_1']);
-                $this->messaging->send($message); 
-            }catch(Exception $ex){
+                if(isset($custo->customer->user->token_device)){
+                    $message = CloudMessage::withTarget('topic', Constants::TOPICS_PROVIDER_SERVICE)
+                    ->withNotification(Notification::create("Offre de livraison", "Un colis à livrer est disponible")) 
+                    ->withData(['type' => 'type_1']);
+                    $this->messaging->send($message); 
+                }
+            }catch(\Throwable $ex){
+                CloudMessage::     $ex->getMessage();
                 
             }
 
@@ -347,7 +350,8 @@ class AdvertController extends BaseController
                                     IN (SELECT advert_responses.id_advert 
                                             FROM advert_responses 
                                             WHERE advert_responses.id_provider_service = '".$provider->id."' 
-                                            AND advert_responses.id_advert = adverts.id )";
+                                            AND advert_responses.id_advert = adverts.id
+                                            AND advert_responses.deleted_at IS NULL )";
 
             if($request->has('state') && isset($request->state) && !is_numeric($request->state)) 
                 return  $this->sendResponse(null, "Le state doit être un entier", "State must be an integer"); 
@@ -365,8 +369,7 @@ class AdvertController extends BaseController
                 $queryAdverts = $queryAdverts . " AND adverts.taken = '".$request->taken."' ";
 
             $resultAdverts = DB::SELECT(DB::RAW($queryAdverts));  
-
-
+ 
             if(isset($resultAdverts) && count($resultAdverts) > 0){
                 $msg = "Tous les annonces";
                 $debugMsg = "All advertisements";
@@ -471,16 +474,67 @@ class AdvertController extends BaseController
             try{ 
                 $custo = Advert::where("id", $request->id_advert)->with("customer.user")->first();
 
-                $message = CloudMessage::withTarget('token', $custo->customer->user->token_device)
-                ->withNotification(Notification::create("Demande", "Vous avez une nouvelle proposition pour votre course de ".$custo->departure_city." vers ".$custo->arrival_city.".")) 
-                ->withData(['type' => 'type_1', 'id_advert' => $request->id_advert ]);
-                $this->messaging->send($message); 
-            }catch(Exception $ex){
-                
+                if(isset($custo->customer->user->token_device)){
+                    $message = CloudMessage::withTarget('token', $custo->customer->user->token_device)
+                    ->withNotification(Notification::create("Demande", "Vous avez une nouvelle proposition pour votre course de ".$custo->departure_city." vers ".$custo->arrival_city.".")) 
+                    ->withData(['type' => 'type_2', 'id_advert' => $request->id_advert ]);
+                    $this->messaging->send($message); 
+                }
+
+            }catch(\Throwable $ex){
+                $ex->getMessage();
             }
             
             $msg = "Vous avez postulé avec succès sur l'annonce";
             return  $this->sendResponse(null, $msg, "You have successfully applied on the advert");
+
+        } catch (\Throwable $th) {
+            //throw $th;
+            return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
+        }
+    }
+ 
+    /**
+     * Prestataire: l'annonce une annonce.
+     * Params(id_advert)
+     *
+     */
+    public function deleteApply(Request $request)
+    { 
+        try {
+            $user = auth()->user();
+            $provider = ProviderService::where("id_user", $user->id)->first(); 
+
+            $validateData = Validator::make($request->all(), [
+                'id_advert'=>'required' 
+            ]);
+
+            if(!isset($provider)) 
+                return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found", 400);
+    
+            if($validateData->fails())
+                return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
+ 
+            if(!isset($provider)){
+                if($user->id_user_type != Constants::USER_TYPE_PRESTATAIRE){
+                    $msg = "Avec votre profil, vous ne pouvez pas potuler ou ne pas postuler sur une annonce";
+                    $debugMsg = "With your profile, you cannot potulate or not apply for an advertisement";
+                    return  $this->sendResponse(null, $msg, $debugMsg);
+                }
+            }
+
+            $advertResponse = AdvertResponse::where(["id_advert" => $request->id_advert, "id_provider_service" => $provider->id])->first();
+  
+            if(!isset($advertResponse)){
+                $msg = "Vous n'avez pas postulé sur cette annonce";
+                $debugMsg = "You have not applied for this ad";
+                return  $this->sendResponse(null, $msg, $debugMsg);
+            }
+            
+            $advertResponse->delete();
+            
+            $msg = "Vous avez supprimé avec succès l'annonce";
+            return  $this->sendResponse(null, $msg, "Vous avez supprimé avec succès l'annonce");
 
         } catch (\Throwable $th) {
             //throw $th;
@@ -606,7 +660,7 @@ class AdvertController extends BaseController
             if($request->has('rate') && isset($request->rate) && is_numeric($request->rate) && ($request->rate < 1 || $request->rate > 5)) 
                 return  $this->sendResponse(null, "La note doit être entre 1 et 5", "The rate must be between 1 and 5"); 
  
-                //dd($request->state);
+            //dd($request->state);
             $advert->state = StateAdvert::map()[$request->state];
 
             $advert->comment = isset($request->comment) ? $request->comment : "null";
@@ -621,14 +675,17 @@ class AdvertController extends BaseController
                 $debugMsg = "Your delivery is successful"; 
 
                 try{
-                    $custo = Advert::where("id", $advert->id)->with("customer.user")->first();
-     
-                    $message = CloudMessage::withTarget('token', $custo->customer->user->token_device)
-                    ->withNotification(Notification::create("Demande", "Le livreur a signalé votre course comme terminée, vous pouvez dès à présent noter sa prestation.")) 
-                    ->withData(['type' => 'type_1', 'id_advert' =>  $advert->id]);
-                    $this->messaging->send($message);
+                    if(isset($custo->customer->user->token_device)){
+                        $custo = Advert::where("id", $advert->id)->with("customer.user")->first();
+        
+                        $message = CloudMessage::withTarget('token', $custo->customer->user->token_device)
+                        ->withNotification(Notification::create("Demande", "Le livreur a signalé votre course comme terminée, vous pouvez dès à présent noter sa prestation.")) 
+                        ->withData(['type' => 'type_3', 'id_advert' =>  $advert->id]);
+                        $this->messaging->send($message);
+                    }
 
-                }catch(Exception $ex){
+                }catch(\Throwable $ex){
+                    $ex->getMessage();
                     
                 }
 
@@ -839,11 +896,14 @@ class AdvertController extends BaseController
             $debugMsg = "Successfully chosen providerService!";
  
             try{ 
-                $message = CloudMessage::withTarget('token', $provider->user->token_device)
-                ->withNotification(Notification::create("Offre acceptée", "Votre proposition pour la livraison ".$advert->departure_city." vers ".$advert->arrival_city." est acceptée, contactez dès à présent votre client !")) 
-                ->withData(['type' => 'type_1', 'id_advert' => $advert->id]);
-                $this->messaging->send($message); 
-            }catch(Exception $ex){
+                if(isset($custo->customer->user->token_device)){
+                    $message = CloudMessage::withTarget('token', $provider->user->token_device)
+                    ->withNotification(Notification::create("Offre acceptée", "Votre proposition pour la livraison ".$advert->departure_city." vers ".$advert->arrival_city." est acceptée, contactez dès à présent votre client !")) 
+                    ->withData(['type' => 'type_4', 'id_advert' => $advert->id]);
+                    $this->messaging->send($message); 
+                }
+            }catch(\Throwable $ex){
+                $ex->getMessage();
                 
             }
  
