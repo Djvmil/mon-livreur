@@ -148,10 +148,10 @@ class AdvertController extends BaseController
                 $queryAdverts = "SELECT adverts.id, adverts.name, adverts.description, departure_city, arrival_city, adverts.state,
                                         acceptance_date, departure_date, 
                                         (CASE WHEN taken = 0 THEN 'false' ELSE 'true' END) AS taken, price, nature_package, 
-                                        (SELECT COUNT(*) FROM advert_responses WHERE advert_responses.id_advert = adverts.id AND advert_responses.deleted_at is null) as provider_response_count, created_at, updated_at
+                                        (SELECT COUNT(*) FROM advert_responses WHERE advert_responses.id_advert = adverts.id AND advert_responses.deleted_at is NULL) as provider_response_count, created_at, updated_at
                                     FROM adverts
                                     WHERE id_customer = '".$customer->id."' 
-                                    AND deleted_at is null ";
+                                    AND deleted_at is NULL ";
 
                 if($request->has('state') && isset($request->state) && !is_numeric($request->state)) 
                     return  $this->sendResponse(null, "Le state doit être un entier", "State must be an integer"); 
@@ -194,7 +194,7 @@ class AdvertController extends BaseController
  
                 $queryAdverts = "SELECT adverts.id, id_user, adverts.name, adverts.description, adverts.departure_city, adverts.arrival_city, adverts.state,
                                         (CASE WHEN 
-                                            (SELECT id FROM advert_responses WHERE id_advert = adverts.id AND advert_responses.deleted_at is null AND advert_responses.id_provider_service = '".$provider->id."') 
+                                            (SELECT id FROM advert_responses WHERE id_advert = adverts.id AND advert_responses.deleted_at is NULL AND advert_responses.id_provider_service = '".$provider->id."') 
                                             IS NOT NULL THEN 'POSTULED' ELSE 'NOT_POSTULED' END) AS status,
                                         adverts.acceptance_date, adverts.departure_date, users.firstname, users.lastname, users.profile_photo_path, users.phone, users.email,
                                         (CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify,
@@ -286,7 +286,7 @@ class AdvertController extends BaseController
                                             FROM advert_responses 
                                             WHERE advert_responses.id_provider_service = '".$provider->id."' 
                                             AND advert_responses.id_advert = adverts.id
-                                            AND advert_responses.deleted_at is null )";
+                                            AND advert_responses.deleted_at is NULL )";
 
             if($request->has('state') && isset($request->state) && !is_numeric($request->state)) 
                 return  $this->sendResponse(null, "Le state doit être un entier", "State must be an integer"); 
@@ -447,8 +447,8 @@ class AdvertController extends BaseController
  
             if(!isset($provider)){
                 if($user->id_user_type != Constants::USER_TYPE_PRESTATAIRE){
-                    $msg = "Avec votre profil, vous ne pouvez pas potuler sur une annonce";
-                    $debugMsg = "With your profile, you cannot potulate on an advert";
+                    $msg = "Avec votre profil, vous ne pouvez pas postuler sur une annonce";
+                    $debugMsg = "With your profile, you cannot postulate on an advert";
                     return  $this->sendResponse(null, $msg, $debugMsg);
                 }
             }
@@ -516,8 +516,8 @@ class AdvertController extends BaseController
  
             if(!isset($provider)){
                 if($user->id_user_type != Constants::USER_TYPE_PRESTATAIRE){
-                    $msg = "Avec votre profil, vous ne pouvez pas potuler ou ne pas postuler sur une annonce";
-                    $debugMsg = "With your profile, you cannot potulate or not apply for an advertisement";
+                    $msg = "Avec votre profil, vous ne pouvez pas postuler ou ne pas postuler sur une annonce";
+                    $debugMsg = "With your profile, you cannot postulate or not apply for an advertisement";
                     return  $this->sendResponse(null, $msg, $debugMsg);
                 }
             }
@@ -529,7 +529,11 @@ class AdvertController extends BaseController
                 $debugMsg = "You have not applied for this ad";
                 return  $this->sendResponse(null, $msg, $debugMsg);
             }
-            
+ 
+            Advert::where(["id" => $request->id_advert])->update([
+                "taken" => 0,
+                "state" => StateAdvert::map()[1]
+            ]); 
             $advertResponse->delete();
             
             $msg = "Vous avez supprimé avec succès l'annonce";
@@ -727,7 +731,7 @@ class AdvertController extends BaseController
                                        ELSE '".StateAdvert::map()[StateAdvert::WAITING]."' END) AS status ,
                                 users.created_at AS user_registration_date,
                                 (CASE WHEN adverts.taken = 0 THEN 'false' ELSE 'true' END) AS taken, adverts.price, adverts.nature_package, 
-                                (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id AND advert_responses.deleted_at is null) AS provider_response_count, adverts.created_at, adverts.updated_at 
+                                (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id AND advert_responses.deleted_at is NULL) AS provider_response_count, adverts.created_at, adverts.updated_at 
                             FROM adverts, customers, users
                             WHERE adverts.id_customer = customers.id 
                             AND customers.id_user = users.id  
