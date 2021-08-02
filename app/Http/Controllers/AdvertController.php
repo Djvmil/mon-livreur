@@ -92,15 +92,13 @@ class AdvertController extends BaseController
             ]); 
 
 
-            try{
-                if(isset($custo->customer->user->token_device)){
-                    $message = CloudMessage::withTarget('topic', Constants::TOPICS_PROVIDER_SERVICE)
-                    ->withNotification(Notification::create("Offre de livraison", "Un colis à livrer est disponible")) 
-                    ->withData(['type' => 'type_1']);
-                    $this->messaging->send($message); 
-                }
+            try{ 
+                $message = CloudMessage::withTarget('topic', Constants::TOPICS_PROVIDER_SERVICE)
+                ->withNotification(Notification::create("Offre de livraison", "Un colis à livrer est disponible")) 
+                ->withData(['type' => 'type_1']);
+                $this->messaging->send($message);  
             }catch(\Throwable $ex){
-                CloudMessage::     $ex->getMessage();
+                $ex->getMessage();
                 
             }
 
