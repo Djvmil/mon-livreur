@@ -148,7 +148,7 @@ class AdvertController extends BaseController
                 $queryAdverts = "SELECT adverts.id, adverts.name, adverts.description, departure_city, arrival_city, adverts.state,
                                         acceptance_date, departure_date, 
                                         (CASE WHEN taken = 0 THEN 'false' ELSE 'true' END) AS taken, price, nature_package, 
-                                        (SELECT COUNT(*) FROM advert_responses WHERE advert_responses.id_advert = adverts.id AND advert_responses.deleted_at is NULL) as provider_response_count, created_at, updated_at
+                                        (SELECT COUNT(*) FROM advert_responses WHERE advert_responses.id_advert = adverts.id) as provider_response_count, created_at, updated_at
                                     FROM adverts
                                     WHERE id_customer = '".$customer->id."' 
                                     AND deleted_at is NULL ";
@@ -194,7 +194,7 @@ class AdvertController extends BaseController
  
                 $queryAdverts = "SELECT adverts.id, id_user, adverts.name, adverts.description, adverts.departure_city, adverts.arrival_city, adverts.state,
                                         (CASE WHEN 
-                                            (SELECT id FROM advert_responses WHERE id_advert = adverts.id AND advert_responses.deleted_at is NULL AND advert_responses.id_provider_service = '".$provider->id."') 
+                                            (SELECT id FROM advert_responses WHERE id_advert = adverts.id AND advert_responses.id_provider_service = '".$provider->id."') 
                                             IS NOT NULL THEN 'POSTULED' ELSE 'NOT_POSTULED' END) AS status,
                                         adverts.acceptance_date, adverts.departure_date, users.firstname, users.lastname, users.profile_photo_path, users.phone, users.email,
                                         (CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify,
@@ -285,8 +285,7 @@ class AdvertController extends BaseController
                                     NOT IN (SELECT advert_responses.id_advert 
                                             FROM advert_responses 
                                             WHERE advert_responses.id_provider_service = '".$provider->id."' 
-                                            AND advert_responses.id_advert = adverts.id
-                                            AND advert_responses.deleted_at is NULL )";
+                                            AND advert_responses.id_advert = adverts.id )";
 
             if($request->has('state') && isset($request->state) && !is_numeric($request->state)) 
                 return  $this->sendResponse(null, "Le state doit être un entier", "State must be an integer"); 
@@ -349,8 +348,7 @@ class AdvertController extends BaseController
                                     IN (SELECT advert_responses.id_advert 
                                             FROM advert_responses 
                                             WHERE advert_responses.id_provider_service = '".$provider->id."' 
-                                            AND advert_responses.id_advert = adverts.id
-                                            AND advert_responses.deleted_at IS NULL )";
+                                            AND advert_responses.id_advert = adverts.id)";
 
             if($request->has('state') && isset($request->state) && !is_numeric($request->state)) 
                 return  $this->sendResponse(null, "Le state doit être un entier", "State must be an integer"); 
@@ -529,12 +527,13 @@ class AdvertController extends BaseController
                 $debugMsg = "You have not applied for this ad";
                 return  $this->sendResponse(null, $msg, $debugMsg);
             }
- 
+
+            
             Advert::where(["id" => $request->id_advert])->update([
                 "taken" => 0,
                 "state" => StateAdvert::map()[1]
             ]); 
-            $advertResponse->delete();
+            $advertResponse->forceDelete();
             
             $msg = "Vous avez supprimé avec succès l'annonce";
             return  $this->sendResponse(null, $msg, "Vous avez supprimé avec succès l'annonce");
@@ -731,12 +730,12 @@ class AdvertController extends BaseController
                                        ELSE '".StateAdvert::map()[StateAdvert::WAITING]."' END) AS status ,
                                 users.created_at AS user_registration_date,
                                 (CASE WHEN adverts.taken = 0 THEN 'false' ELSE 'true' END) AS taken, adverts.price, adverts.nature_package, 
-                                (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id AND advert_responses.deleted_at is NULL) AS provider_response_count, adverts.created_at, adverts.updated_at 
+                                (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id) AS provider_response_count, adverts.created_at, adverts.updated_at 
                             FROM adverts, customers, users
                             WHERE adverts.id_customer = customers.id 
                             AND customers.id_user = users.id  
                             AND adverts.deleted_at IS NULL
-                            AND adverts.id IN (SELECT id_advert FROM advert_responses WHERE advert_responses.id_provider_service = '".$provider->id."' AND  id_advert = adverts.id AND advert_responses.deleted_at is null)";
+                            AND adverts.id IN (SELECT id_advert FROM advert_responses WHERE advert_responses.id_provider_service = '".$provider->id."' AND  id_advert = adverts.id )";
                             
             if($request->has('state') && isset($request->state) && !is_numeric($request->state)) 
                 return  $this->sendResponse(null, "Le state doit être un entier", "State must be an integer"); 
