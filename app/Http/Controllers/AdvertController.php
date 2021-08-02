@@ -701,6 +701,7 @@ class AdvertController extends BaseController
         } 
     }
 
+    
     /**
      * Prestataire: Tous les annonces d'un prestataire (les annonces qu'il a postulé ) 
      * avec comme status: ACCEPTED_STATUS | REFUSED_STATUS | WAITING_STATUS
