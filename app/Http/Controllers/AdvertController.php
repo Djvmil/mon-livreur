@@ -476,7 +476,7 @@ class AdvertController extends BaseController
 
                 if(isset($custo->customer->user->token_device)){
                     $message = CloudMessage::withTarget('token', $custo->customer->user->token_device)
-                    ->withNotification(Notification::create("Demande", "Vous avez une nouvelle proposition pour votre course de ".$custo->departure_city." vers ".$custo->arrival_city.".")) 
+                    ->withNotification(Notification::create("Nouvelle Proposition", "Vous avez une nouvelle proposition pour votre course de ".$custo->departure_city." vers ".$custo->arrival_city.".")) 
                     ->withData(['type' => 'type_2', 'id_advert' => $request->id_advert ]);
                     $this->messaging->send($message); 
                 }
@@ -679,7 +679,7 @@ class AdvertController extends BaseController
                         $custo = Advert::where("id", $advert->id)->with("customer.user")->first();
         
                         $message = CloudMessage::withTarget('token', $custo->customer->user->token_device)
-                        ->withNotification(Notification::create("Demande", "Le livreur a signalé votre course comme terminée, vous pouvez dès à présent noter sa prestation.")) 
+                        ->withNotification(Notification::create("Livraison Terminée", "Le livreur a signalé votre course comme terminée, vous pouvez dès à présent noter sa prestation.")) 
                         ->withData(['type' => 'type_3', 'id_advert' =>  $advert->id]);
                         $this->messaging->send($message);
                     }
