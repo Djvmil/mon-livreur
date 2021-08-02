@@ -894,7 +894,7 @@ class AdvertController extends BaseController
             $debugMsg = "Successfully chosen providerService!";
  
             try{ 
-                if(isset($custo->customer->user->token_device)){
+                if(isset($provider->user->token_device)){
                     $message = CloudMessage::withTarget('token', $provider->user->token_device)
                     ->withNotification(Notification::create("Offre acceptée", "Votre proposition pour la livraison ".$advert->departure_city." vers ".$advert->arrival_city." est acceptée, contactez dès à présent votre client !")) 
                     ->withData(['type' => 'type_4', 'id_advert' => $advert->id]);
