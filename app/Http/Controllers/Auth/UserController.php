@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\BaseController; 
+use App\Models\AdvertsDelivered;
+use App\Models\ProviderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator; 
 use App\Models\AuthOtp; 
@@ -32,11 +34,31 @@ class UserController extends BaseController
             
             if( $user->id_user_type == Constants::USER_TYPE_CLIENT ){
 
-                $customer = Customer::where("id_user", $user->id)->first();
+                $customer = Customer::where("id_user", $user->id)->first(); 
+                if(!isset($customer))
+                    return  $this->sendResponse(null, "Client non trouvée", "Customer not found", 400);
+    
                 $allAdvert = Advert::where("id_customer", $customer->id)->get();
                 
                 $advertCount = $allAdvert->count();
                 $user['advert_count'] = $advertCount;
+                
+            }else if( $user->id_user_type == Constants::USER_TYPE_PRESTATAIRE ){
+                $provider = ProviderService::where("id_user", $user->id)->first();
+                if(!isset($provider))
+                    return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found", 400);
+
+                
+                    $val = AdvertsDelivered::where('id_provider_service', $provider->id)->select(
+                        DB::raw("SUM(rate) as rate"),
+                        DB::raw("(SELECT COUNT(*) FROM adverts_delivered  WHERE id_provider_service = '".$provider->id."') AS delivry_count"),
+                        DB::raw("(SELECT COUNT(*) FROM adverts_delivered WHERE id_provider_service = '".$provider->id."' AND rate != 0) AS nb_rate")
+                    )->first();
+
+
+                    $user['delivry_count'] = $val->delivry_count;
+                    $user['rate'] = $val->nb_rate == 0 ? 0 : round(((float)$val->rate) / ((float)$val->nb_rate), 2);
+
             }
 
             $user['user_type'] = auth()->user()->user_type->name;

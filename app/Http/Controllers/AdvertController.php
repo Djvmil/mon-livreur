@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdvertsDelivered;
 use App\Models\Advert;
 use App\Models\AdvertResponse;
 use App\Models\User;
@@ -492,7 +493,7 @@ class AdvertController extends BaseController
     }
  
     /**
-     * Prestataire: l'annonce une annonce.
+     * Prestataire: l' une annonce.
      * Params(id_advert)
      *
      */
@@ -834,11 +835,22 @@ class AdvertController extends BaseController
             if(!isset($customer))
                 return  $this->sendResponse(null, "Client non trouvée", "Customer not found", 400);
             
-            $advertResponse = AdvertResponse::where("id_advert", $id)->with("provider.user")->get(); 
+            $advertResponse = AdvertResponse::where("id_advert", $id)->with("provider.user")->get();
  
             if(isset($advertResponse) && count($advertResponse) > 0){
                 $msg = "liste prestataire";
                 $debugMsg = "provider list!";
+
+                foreach ($advertResponse as $item) { 
+                    $val = AdvertsDelivered::where('id_provider_service', $item->provider->id)->select(
+                        DB::raw("SUM(rate) as rate"),
+                        DB::raw("(SELECT COUNT(*) FROM adverts_delivered  WHERE id_provider_service = '".$item->provider->id."') AS delivry_count"),
+                        DB::raw("(SELECT COUNT(*) FROM adverts_delivered WHERE id_provider_service = '".$item->provider->id."' AND rate != 0) AS nb_rate")
+                    )->first();
+                    $item->provider->delivry_count = $val->delivry_count;
+                    $item->provider->rate = $val->nb_rate == 0 ? 0 : round(((float)$val->rate) / ((float)$val->nb_rate), 2);
+                } 
+
             }else{
                 $msg = "Aucun prestataire n'a encore postulé";
                 $debugMsg = "No provider has applied yet!";
@@ -851,7 +863,6 @@ class AdvertController extends BaseController
         } 
     }
 
-    
  
     /**
      * Client: Choisir un prestataire.
