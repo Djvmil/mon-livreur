@@ -15,7 +15,7 @@ class CreateNoticeTable extends Migration
     {
         Schema::create('notices', function (Blueprint $table) { 
 			$table->integer('id', true);
-			$table->integer('rate')->default(-1)->nullable();
+			$table->decimal('rate')->default(-1)->nullable();
 			$table->text('comment', 65535)->nullable();
 			$table->integer('id_customer')->index('id_customer')->nullable();
 			$table->integer('id_provider')->index('id_provider')->nullable();

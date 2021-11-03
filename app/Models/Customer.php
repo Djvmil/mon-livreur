@@ -33,7 +33,7 @@ class Customer extends Eloquent
 	protected $casts = [
 		'id_user' => 'int',
         'idcustomer'=>'int',
-		'rate' => 'int',
+		'rate' => 'float',
 		'delivry_count' => 'int'
 	];
 

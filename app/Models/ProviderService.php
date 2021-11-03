@@ -31,7 +31,7 @@ class ProviderService extends Eloquent
 
 	protected $casts = [
 		'id_user' => 'int',
-		'rate' => 'int',
+		'rate' => 'float',
 		'delivry_count' => 'int'
 	];
 

@@ -35,6 +35,7 @@ class Notice extends Eloquent
 	protected $casts = [
 		'id_customer' => 'int',
 		'id_provider' => 'int',
+		'rate' => 'float',
 		'id_advert' => 'int'
 	];
 

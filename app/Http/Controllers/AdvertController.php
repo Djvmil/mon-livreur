@@ -319,7 +319,7 @@ class AdvertController extends BaseController
     }
 
     /**
-     * Prestataire: Tous les annonces avec comme status: POSTULED
+     * Prestataire: Tous les annonces avec comme status: POSTULED, 
      * 
      */
     public function advertsPostulated(Request $request)
@@ -330,10 +330,24 @@ class AdvertController extends BaseController
             if(!isset($provider)) 
                 return  $this->sendResponse(null, "Prestataire non trouvée", "ProviderService not found"); 
 
+
+                // $val = AdvertsDelivered::where('id_provider_service', $item->provider->id)->select(
+                //     DB::raw("SUM(rate) as rate"),
+                //     DB::raw("(SELECT COUNT(*) FROM adverts_delivered  WHERE id_provider_service = '".$provider->id."') AS delivry_count"),
+                //     DB::raw("(SELECT COUNT(*) FROM adverts_delivered WHERE id_provider_service = '".$provider->id."' AND rate != 0) AS nb_rate")
+                // )->first();
+                // $item->provider->delivry_count = $val->delivry_count;
+                // $item->provider->rate = $val->nb_rate == 0 ? 0 : round(((float)$val->rate) / ((float)$val->nb_rate), 2);
+            
+
+                // $stateRequest = isset($request->state) ? $request->state : "";
+
             $queryAdverts = "SELECT adverts.id, id_user, adverts.name, adverts.description, adverts.departure_city, adverts.arrival_city, adverts.state,
                                         (CASE WHEN 
                                             (SELECT id FROM advert_responses WHERE id_advert = adverts.id AND advert_responses.id_provider_service = '".$provider->id."') 
                                             IS NOT NULL THEN 'POSTULED' ELSE 'NOT_POSTULED' END) AS status,
+                                        (CASE WHEN adverts.state = '".StateAdvert::map()[StateAdvert::DELIVERED]."' THEN (SELECT rate FROM adverts_delivered WHERE adverts_delivered.id_advert = adverts.id AND adverts_delivered.id_provider_service = '".$provider->id."')
+                                        ELSE 0 END) AS rate,
                                     adverts.acceptance_date, adverts.departure_date, users.firstname, users.lastname, users.profile_photo_path, users.phone, users.email,
                                     (CASE WHEN users.is_email_verify = 0 THEN 'false' ELSE 'true' END) AS is_email_verify,
                                     (CASE WHEN users.is_phone_verify = 0 THEN 'false' ELSE 'true' END) AS is_phone_verify,
@@ -343,7 +357,7 @@ class AdvertController extends BaseController
                                     (SELECT COUNT(*) FROM advert_responses WHERE id_advert = adverts.id) AS provider_response_count, adverts.created_at, adverts.updated_at
                                 FROM adverts, customers, users 
                                 WHERE adverts.id_customer = customers.id 
-                                AND customers.id_user = users.id   
+                                AND customers.id_user = users.id
                                 AND adverts.deleted_at IS NULL
                                 AND adverts.id 
                                     IN (SELECT advert_responses.id_advert 
