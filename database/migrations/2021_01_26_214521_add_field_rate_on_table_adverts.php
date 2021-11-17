@@ -15,7 +15,7 @@ class AddFieldRateOnTableAdverts extends Migration
     {  
          
         Schema::table('adverts', function (Blueprint $table) {
-            $table->integer('rate')->nullable()->default(0);
+            $table->decimal('rate')->nullable()->default(0);
 			$table->text('comment', 65535)->nullable()->after('rate'); 
         }); 
     }

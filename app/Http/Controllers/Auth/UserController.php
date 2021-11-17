@@ -71,7 +71,6 @@ class UserController extends BaseController
         }
      }
 
-
     public function  update(Request $request){
         try {
             $user = auth()->user();
@@ -119,7 +118,6 @@ class UserController extends BaseController
                 case Constants::CHECK_TYPE_REGISTER: 
                     $checkResult = User::where($request->field, $request->value)->first();
 
-                    
                     if($checkResult != null)    
                         return $this->sendResponse($request->value, "$request->field déjà utilisé", "$request->field Already used", 400);
                       
@@ -185,7 +183,6 @@ class UserController extends BaseController
     }
   
     public function  otpConfirmation(Request $request){
-         
         try {
              $validateData = Validator::make($request->all(), [
                 'auth' => 'required', 
@@ -195,7 +192,7 @@ class UserController extends BaseController
             if($validateData->fails())
                 return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
   
-            $auth = AuthOtp::where('auth', $request->auth, 'status')->get()->first(); 
+            $auth = AuthOtp::where('auth', $request->auth)->get()->first(); 
  
             if($auth != null && Hash::check($request->otp, $auth->otp)){
 
@@ -220,8 +217,81 @@ class UserController extends BaseController
         }
     }
  
-    public function  retryOtpConfirm(Request $request){
-        try {
+    // public function  retryOtpConfirm(Request $request){
+    //     try {
+    //          $validateData = Validator::make($request->all(), [
+    //             'auth' => 'required', 
+    //             'otp' => 'required'
+    //         ]);
+            
+    //         if($validateData->fails())
+    //             return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
+  
+    //         $auth = AuthOtp::where('auth', $request->auth, 'status')->get()->first(); 
+ 
+
+    //         if($auth != null && Hash::check($request->otp, $auth->otp)){
+    //             $user = User::find($auth->id_user);
+    //             $user->active = true;
+    //             $user->save();
+    //             $auth->status = Constants::STATUS_OTP_CONSUMED;
+
+    //             return  $this->sendResponse(null, "Souscription effectué avec succés.", "Subscription successfully completed.");
+    //         }
+ 
+    //         return  $this->sendResponse(null, "Le saisi code est incorrecte.", "The code entered is incorrect.", 400);
+        
+    //     } catch (\Throwable $th) {
+    //         //throw $th;
+    //         return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
+
+    //     }
+    // } 
+
+
+ 
+    public function requestForgetPassword(Request $request){
+ 
+        try {     
+            $validateData = Validator::make($request->all(), [
+               'phone' => 'required',  
+            ]);
+ 
+            if($validateData->fails())
+                return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
+            
+            $checkResult = User::where("phone", $request->phone)->first();
+            if(isset($checkResult)){
+                $otpCode = Constants::OTP_CODE();
+                $authOtp = AuthOtp::create([
+                    'auth'=> (string)Str::uuid(),  
+                    'phone'=> $request->phone, 
+                    'otp'=> bcrypt($otpCode), 
+                    'otp_type' => Constants::OTP_TYPE_FORGET_PASSWORD
+                    ]);
+
+                    $resData['otp'] = $otpCode; 
+                    $resData['auth'] = $authOtp->auth; 
+
+                    $msg = "Votre code de confirmation est: $otpCode.\n Le code expire dans 10 minutes ";
+
+                    $sendMsg = new SmsService();
+                    $sendMsg->sendMessage($request->phone, $msg);
+
+                    return $this->sendResponse($resData, $msg, "Your confirmation code is: $otpCode. \n The code expires in 10 minutes");
+            }
+
+            return  $this->sendResponse(null, "ce numéro ($request->phone) n'existe pas", "this number ($request->phone) does not exist", 400);
+
+        } catch (\Throwable $th) {
+            //throw $th;
+            return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
+
+        }
+    }
+ 
+    public function forgetPassword(Request $request){
+           try {
              $validateData = Validator::make($request->all(), [
                 'auth' => 'required', 
                 'otp' => 'required'
@@ -230,26 +300,61 @@ class UserController extends BaseController
             if($validateData->fails())
                 return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
   
-            $auth = AuthOtp::where('auth', $request->auth, 'status')->get()->first(); 
+            $auth = AuthOtp::where('auth', $request->auth)->first(); 
  
-
             if($auth != null && Hash::check($request->otp, $auth->otp)){
-                $user = User::find($auth->id_user);
-                $user->active = true;
-                $user->save();
-                $auth->status = Constants::STATUS_OTP_CONSUMED;
 
-                return  $this->sendResponse(null, "Souscription effectué avec succés.", "Subscription successfully completed.");
+                //Des controles reste pour l'otp
+                //-otp expire
+                //-otp deja consomé
+                //if($auth)
+                //$user = User::where('phone', $auth->phone)->first();
+                //$user->active = true;
+                //$user->save(); 
+
+                $auth->status = Constants::STATUS_OTP_CONSUMED;
+                $auth->save();
+                return  $this->sendResponse(null, "Confimation effectué avec succés.", "Confirmation successfully completed.");
             }
  
-            return  $this->sendResponse(null, "Le saisi code est incorrecte.", "The code entered is incorrect.", 400);
+            return  $this->sendResponse(null, "Le code saisi est incorrecte.", "The code entered is incorrect.", 400);
         
         } catch (\Throwable $th) {
             //throw $th;
             return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
-
         }
-    } 
+    }
+ 
+    public function changePassword(Request $request){
+ 
+           try {
+             $validateData = Validator::make($request->all(), [
+                'auth' => 'required', 
+                'password' => 'required'
+            ]);
+            
+            if($validateData->fails())
+                return $this->sendResponse(null, $validateData->errors()->all(), $validateData->errors()->all(), 400);
+  
+            $auth = AuthOtp::where('auth', $request->auth)->first(); 
+            //return $this->sendResponse($auth, "terminal $request->auth");
+            $checkResult = User::where("phone", $auth->phone)->update(["password"=> bcrypt($request->password)]);
+
+            if(isset($checkResult)){
+                    $msg = "Votre mot de passe à été changé avec succè";
+                    $sendMsg = new SmsService();
+                    $sendMsg->sendMessage($request->phone, $msg);
+
+                    return $this->sendResponse($resData, $msg, "Your password has been successfully changed");
+            }
+
+            return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 400);
+        
+        } catch (\Throwable $th) {
+            //throw $th;
+            return  $this->sendResponse(null, "Une erreur inconnue s'est produite.", $th->getMessage(), 422);
+        }
+    }
 
 
     public function image(Request $request){

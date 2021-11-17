@@ -26,6 +26,9 @@ Route::post('login',  [LoginController::class, 'login']);
 
 Route::post('check',  [UserController::class, 'check']);
 Route::post('otp-confirmation', [UserController::class, 'otpConfirmation']);
+Route::post('request-forget-password', [UserController::class, 'requestForgetPassword']);
+Route::post('forget-password', [UserController::class, 'forgetPassword']);
+Route::post('change-password', [UserController::class, 'changePassword']);
 
 Route::get('testNotif', [AdminController::class, 'testNotif']);
 

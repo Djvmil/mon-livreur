@@ -15,7 +15,7 @@ class AddFieldRateOnTableProvider extends Migration
     {  
          
         Schema::table('provider_services', function (Blueprint $table) {
-            $table->integer('rate')->default(0)->after('avis');
+            $table->decimal('rate')->default(0)->after('avis');
             $table->integer('delivry_count')->default(0)->after('rate');
         });
     }

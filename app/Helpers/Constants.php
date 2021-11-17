@@ -26,6 +26,7 @@ class Constants
 	// Client Secret: ppvTSfzG52P4uOXYlwvtYdqaf5iVvT1fNe9daXtM
 	       
 	const OTP_TYPE_REGISTER = "REGISTER_OTP"; 
+	const OTP_TYPE_FORGET_PASSWORD = "FORGET_PASSWORD_OTP"; 
 
 
 	const USER_TYPE_ADMIN = 1;

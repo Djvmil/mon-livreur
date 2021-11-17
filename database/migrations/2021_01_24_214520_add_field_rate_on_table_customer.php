@@ -14,7 +14,7 @@ class AddFieldRateOnTableCustomer extends Migration
     public function up()
     { 
         Schema::table('customers', function (Blueprint $table) {
-            $table->integer('rate')->default(0)->after('avis');
+            $table->decimal('rate')->default(0)->after('avis');
             $table->integer('delivry_count')->default(0)->after('rate');
         });
     }

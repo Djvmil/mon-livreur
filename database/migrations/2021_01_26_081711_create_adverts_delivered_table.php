@@ -16,7 +16,7 @@ class CreateAdvertsDeliveredTable extends Migration
         Schema::create('adverts_delivered', function (Blueprint $table) {
             $table->integer('id', true); 
             $table->text('comment', 65535)->nullabe();  
-			$table->integer('rate')->default(0)->nullable();
+			$table->decimal('rate')->default(0)->nullable();
             $table->boolean('taken', false); 
             $table->decimal('price')->default(0); 
             $table->string('delivered_date')->nullabe();
